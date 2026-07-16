@@ -1,5 +1,4 @@
 import { Product } from "../api/types";
-import { Card } from "./ui/Card";
 
 interface ProductGroupCardProps {
   name: string;
@@ -14,33 +13,35 @@ export function ProductGroupCard({ name, variants, onOpen }: ProductGroupCardPro
   );
 
   return (
-    <Card
-      className="flex cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-md"
+    <div
+      className="flex cursor-pointer flex-col overflow-hidden rounded-lg border border-secondary-500 bg-white shadow-sm transition-shadow hover:shadow-md"
       onClick={onOpen}
     >
-      <div className="flex h-40 items-center justify-center bg-slate-50 p-3">
+      <div className="flex h-72 items-center justify-center bg-slate-50 p-2">
         {first.imageUrl ? (
           <img src={first.imageUrl} alt={name} className="h-full w-full object-contain" />
         ) : (
           <span className="text-xs text-slate-400">Kein Bild</span>
         )}
       </div>
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="font-semibold text-slate-900">{name}</h3>
+      <div className="flex flex-1 flex-col p-3">
+        <h3 className="font-semibold leading-tight text-slate-900">{name}</h3>
         {mandatoryGroups.length > 0 && (
           <span className="mt-1 inline-block w-fit rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
             Pflicht für {mandatoryGroups.join(", ")}
           </span>
         )}
-        <p className="mt-2 text-sm text-slate-500">{first.modelDesignation}</p>
-        {variants.length > 1 && (
-          <p className="mt-1 text-xs text-slate-400">{variants.length} Farben verfügbar</p>
-        )}
-        <div className="mt-auto flex items-center justify-between pt-3">
+        <p className="mt-1 text-sm text-slate-500">
+          {first.modelDesignation}
+          {variants.length > 1 && (
+            <span className="text-slate-400"> · {variants.length} Farben</span>
+          )}
+        </p>
+        <div className="mt-2 flex items-center justify-between">
           <span className="font-semibold text-primary-700">{first.priceEur} €</span>
           <span className="text-sm font-medium text-primary-600">Auswählen →</span>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
