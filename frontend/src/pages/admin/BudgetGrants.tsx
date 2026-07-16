@@ -4,6 +4,7 @@ import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { PageHeading } from "../../components/ui/PageHeading";
+import { employeeLabel } from "../../lib/employeeLabel";
 
 export function BudgetGrants() {
   const [status, setStatus] = useState<GrantStatusEntry[]>([]);
@@ -57,7 +58,7 @@ export function BudgetGrants() {
           <tbody className="divide-y divide-slate-100">
             {status.map((s) => (
               <tr key={s.userId} className="hover:bg-slate-50">
-                <td className="px-4 py-2.5 text-slate-700">{s.email}</td>
+                <td className="px-4 py-2.5 text-slate-700">{employeeLabel(s)}</td>
                 <td className="whitespace-nowrap px-4 py-2.5 text-slate-600">
                   {new Date(s.cycleJuly1).toLocaleDateString("de-AT")}
                 </td>

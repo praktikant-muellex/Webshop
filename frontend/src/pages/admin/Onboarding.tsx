@@ -14,8 +14,10 @@ const GROUPS = [
 ];
 
 export function Onboarding() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [employeeNumber, setEmployeeNumber] = useState("");
   const [employeeGroupCode, setEmployeeGroupCode] = useState(GROUPS[0].code);
   const [hireDate, setHireDate] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -26,10 +28,19 @@ export function Onboarding() {
     setError(null);
     setMessage(null);
     try {
-      await onboardEmployee({ email, password, employeeGroupCode, hireDate });
-      setMessage(`Mitarbeiter ${email} wurde angelegt.`);
-      setEmail("");
-      setPassword("");
+      await onboardEmployee({
+        firstName,
+        lastName,
+        nickname: nickname || undefined,
+        employeeNumber,
+        employeeGroupCode,
+        hireDate,
+      });
+      setMessage(`Mitarbeiter ${firstName} ${lastName} wurde angelegt.`);
+      setFirstName("");
+      setLastName("");
+      setNickname("");
+      setEmployeeNumber("");
       setHireDate("");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Anlegen fehlgeschlagen.");
@@ -43,22 +54,42 @@ export function Onboarding() {
       <Card className="mt-4 max-w-md p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className={labelClass}>E-Mail</label>
+            <label className={labelClass}>Vorname</label>
             <input
-              type="email"
+              type="text"
               className={inputClass}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
               required
             />
           </div>
           <div>
-            <label className={labelClass}>Initiales Passwort</label>
+            <label className={labelClass}>Nachname</label>
             <input
-              type="password"
+              type="text"
               className={inputClass}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Zweiter Vorname / Kürzel / Spitzname (optional)</label>
+            <input
+              type="text"
+              className={inputClass}
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              placeholder="Hilft, gleichnamige Mitarbeiter zu unterscheiden"
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Angestelltennummer</label>
+            <input
+              type="text"
+              className={inputClass}
+              value={employeeNumber}
+              onChange={(e) => setEmployeeNumber(e.target.value)}
               required
             />
           </div>

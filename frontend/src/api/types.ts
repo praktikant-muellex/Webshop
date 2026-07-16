@@ -20,7 +20,11 @@ export interface EmployeeGroup {
 
 export interface CurrentUser {
   id: string;
-  email: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  nickname: string | null;
+  employeeNumber: string | null;
   role: Role;
   employeeGroup: EmployeeGroup | null;
   hireDate: string | null;
@@ -56,10 +60,17 @@ export interface OrderItem {
   quantity: number;
 }
 
+export interface OrderUser {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  employeeNumber: string | null;
+}
+
 export interface Order {
   id: string;
   userId: string;
-  user?: { id: string; email: string };
+  user?: OrderUser;
   status: OrderStatus;
   submittedAt: string;
   decidedAt: string | null;
@@ -84,7 +95,10 @@ export interface BudgetSummary {
 
 export interface EmployeeListItem {
   id: string;
-  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  nickname: string | null;
+  employeeNumber: string | null;
   employeeGroup: EmployeeGroup | null;
   hireDate: string | null;
   employmentStatus: EmploymentStatus;

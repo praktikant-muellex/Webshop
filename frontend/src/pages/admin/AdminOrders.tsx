@@ -9,6 +9,7 @@ import { Button } from "../../components/ui/Button";
 import { selectClass, labelClass } from "../../components/ui/formStyles";
 import { PageHeading } from "../../components/ui/PageHeading";
 import { productLabel } from "../../lib/productLabel";
+import { employeeLabel } from "../../lib/employeeLabel";
 
 const STATUS_OPTIONS: { value: OrderStatus | ""; label: string }[] = [
   { value: "", label: "Alle" },
@@ -93,7 +94,7 @@ export function AdminOrders() {
                   <td className="whitespace-nowrap px-4 py-2.5 text-slate-600">
                     {new Date(o.submittedAt).toLocaleDateString("de-AT")}
                   </td>
-                  <td className="px-4 py-2.5 text-slate-700">{o.user?.email}</td>
+                  <td className="px-4 py-2.5 text-slate-700">{o.user ? employeeLabel(o.user) : "-"}</td>
                   <td className="px-4 py-2.5 text-slate-600">
                     {o.items.map((i) => productLabel(i.product)).join(", ")}
                   </td>

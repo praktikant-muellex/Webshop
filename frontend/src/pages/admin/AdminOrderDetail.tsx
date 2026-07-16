@@ -8,6 +8,7 @@ import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { PageHeading } from "../../components/ui/PageHeading";
 import { productLabel } from "../../lib/productLabel";
+import { employeeLabel } from "../../lib/employeeLabel";
 
 export function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
@@ -37,7 +38,7 @@ export function AdminOrderDetail() {
 
   return (
     <div>
-      <PageHeading>Bestellung von {order.user?.email}</PageHeading>
+      <PageHeading>Bestellung von {order.user ? employeeLabel(order.user) : "-"}</PageHeading>
       <div className="mt-2 flex items-center gap-2">
         <span className="text-sm text-slate-500">Status:</span>
         <OrderStatusBadge status={order.status} />

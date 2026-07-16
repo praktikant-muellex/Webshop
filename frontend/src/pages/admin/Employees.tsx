@@ -4,6 +4,7 @@ import { fetchEmployees } from "../../api/admin";
 import { EmployeeListItem } from "../../api/types";
 import { Card } from "../../components/ui/Card";
 import { PageHeading } from "../../components/ui/PageHeading";
+import { employeeLabel } from "../../lib/employeeLabel";
 
 export function Employees() {
   const [employees, setEmployees] = useState<EmployeeListItem[]>([]);
@@ -20,7 +21,8 @@ export function Employees() {
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">E-Mail</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Name</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Nr.</th>
               <th className="px-4 py-2.5 text-left font-medium text-slate-500">Gruppe</th>
               <th className="px-4 py-2.5 text-left font-medium text-slate-500">Eintrittsdatum</th>
               <th className="px-4 py-2.5 text-left font-medium text-slate-500">Status</th>
@@ -31,7 +33,8 @@ export function Employees() {
           <tbody className="divide-y divide-slate-100">
             {employees.map((e) => (
               <tr key={e.id} className="hover:bg-slate-50">
-                <td className="px-4 py-2.5 text-slate-700">{e.email}</td>
+                <td className="px-4 py-2.5 text-slate-700">{employeeLabel(e)}</td>
+                <td className="px-4 py-2.5 text-slate-600">{e.employeeNumber ?? "-"}</td>
                 <td className="px-4 py-2.5 text-slate-600">{e.employeeGroup?.name ?? "-"}</td>
                 <td className="whitespace-nowrap px-4 py-2.5 text-slate-600">
                   {e.hireDate ? new Date(e.hireDate).toLocaleDateString("de-AT") : "-"}

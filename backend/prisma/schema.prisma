@@ -63,8 +63,17 @@ model EmployeeGroup {
 
 model User {
   id                String            @id @default(uuid())
-  email             String            @unique
+  email             String?           @unique
   passwordHash      String?
+  // Employees log in with name + Angestelltennummer instead of email +
+  // password (admin/supervisor accounts keep email + passwordHash).
+  // employeeNumber is intentionally plaintext, not hashed: admins need to
+  // see it in the employee list (e.g. to read it out over the phone), so
+  // it functions as a memorable staff ID rather than a real secret.
+  firstName         String?
+  lastName          String?
+  nickname          String?
+  employeeNumber    String?           @unique
   authProvider      AuthProvider      @default(local)
   role              Role              @default(employee)
   employeeGroupId   String?

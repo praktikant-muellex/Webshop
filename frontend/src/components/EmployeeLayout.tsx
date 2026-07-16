@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { AppHeader } from "./AppHeader";
+import { employeeLabel } from "../lib/employeeLabel";
 
 const NAV_ITEMS = [
   { to: "/catalog", label: "Katalog" },
@@ -17,7 +18,7 @@ export function EmployeeLayout() {
       <AppHeader
         brand={<img src="/logo-compact.png" alt="müllex" className="h-8 w-auto" />}
         navItems={NAV_ITEMS}
-        userLabel={user?.email}
+        userLabel={user ? employeeLabel(user) : ""}
       />
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <Outlet />

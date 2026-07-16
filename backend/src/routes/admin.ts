@@ -1,5 +1,4 @@
 import { Router } from "express";
-import bcrypt from "bcryptjs";
 import { EmploymentStatus, OrderStatus, Prisma } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import { requireRole } from "../middleware/auth";
@@ -31,13 +30,16 @@ adminRouter.get("/employees", staffOnly, async (_req, res) => {
   const users = await prisma.user.findMany({
     where: { role: "employee" },
     include: { employeeGroup: true },
-    orderBy: { email: "asc" },
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
   });
 
   const withBalances = await Promise.all(
     users.map(async (u) => ({
       id: u.id,
-      email: u.email,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      nickname: u.nickname,
+      employeeNumber: u.employeeNumber,
       employeeGroup: u.employeeGroup,
       hireDate: u.hireDate,
       employmentStatus: u.employmentStatus,
@@ -87,12 +89,11 @@ adminRouter.post("/employees/:id/adjustments", adminOnly, async (req, res) => {
 });
 
 adminRouter.post("/employees", adminOnly, async (req, res) => {
-  const { email, password, employeeGroupCode, hireDate, role } = req.body ?? {};
-  if (!email || !password || !employeeGroupCode || !hireDate) {
-    return res.status(400).json({ error: "email, password, employeeGroupCode und hireDate erforderlich." });
-  }
-  if (typeof password !== "string" || password.length < 8) {
-    return res.status(400).json({ error: "Passwort muss mindestens 8 Zeichen lang sein." });
+  const { firstName, lastName, nickname, employeeNumber, employeeGroupCode, hireDate } = req.body ?? {};
+  if (!firstName || !lastName || !employeeNumber || !employeeGroupCode || !hireDate) {
+    return res
+      .status(400)
+      .json({ error: "firstName, lastName, employeeNumber, employeeGroupCode und hireDate erforderlich." });
   }
   if (Number.isNaN(new Date(hireDate).getTime())) {
     return res.status(400).json({ error: "hireDate ist kein gültiges Datum." });
@@ -103,22 +104,22 @@ adminRouter.post("/employees", adminOnly, async (req, res) => {
     return res.status(400).json({ error: `Unbekannte Mitarbeitergruppe: ${employeeGroupCode}` });
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
-
   let user;
   try {
     user = await prisma.user.create({
       data: {
-        email,
-        passwordHash,
-        role: role === "admin" || role === "supervisor" ? role : "employee",
+        firstName: String(firstName).trim(),
+        lastName: String(lastName).trim(),
+        nickname: nickname ? String(nickname).trim() : null,
+        employeeNumber: String(employeeNumber).trim(),
+        role: "employee",
         employeeGroupId: group.id,
         hireDate: new Date(hireDate),
       },
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      return res.status(409).json({ error: `E-Mail ${email} ist bereits vergeben.` });
+      return res.status(409).json({ error: `Angestelltennummer ${employeeNumber} ist bereits vergeben.` });
     }
     throw err;
   }
@@ -129,7 +130,13 @@ adminRouter.post("/employees", adminOnly, async (req, res) => {
     data: { userId: user.id, issuedAt: user.hireDate!, dueBy },
   });
 
-  res.status(201).json({ id: user.id, email: user.email, role: user.role });
+  res.status(201).json({
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    employeeNumber: user.employeeNumber,
+    role: user.role,
+  });
 });
 
 adminRouter.patch("/employees/:id", adminOnly, async (req, res) => {
@@ -166,7 +173,10 @@ adminRouter.patch("/employees/:id", adminOnly, async (req, res) => {
 
   res.json({
     id: user.id,
-    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    nickname: user.nickname,
+    employeeNumber: user.employeeNumber,
     role: user.role,
     employeeGroupId: user.employeeGroupId,
     hireDate: user.hireDate,
@@ -201,7 +211,7 @@ adminRouter.get("/orders", staffOnly, async (req, res) => {
     where,
     include: {
       items: { include: { product: true } },
-      user: { select: { id: true, email: true } },
+      user: { select: { id: true, firstName: true, lastName: true, employeeNumber: true } },
     },
     orderBy: { submittedAt: "desc" },
   });

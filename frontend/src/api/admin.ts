@@ -17,11 +17,12 @@ export function createAdjustment(id: string, amountEur: number, note: string) {
 }
 
 export interface OnboardEmployeeInput {
-  email: string;
-  password: string;
+  firstName: string;
+  lastName: string;
+  nickname?: string;
+  employeeNumber: string;
   employeeGroupCode: string;
   hireDate: string;
-  role?: "employee" | "supervisor" | "admin";
 }
 
 export function onboardEmployee(input: OnboardEmployeeInput) {
@@ -75,7 +76,8 @@ export function runAnnualGrant() {
 
 export interface GrantStatusEntry {
   userId: string;
-  email: string;
+  firstName: string | null;
+  lastName: string | null;
   granted: boolean;
   cycleJuly1: string;
 }

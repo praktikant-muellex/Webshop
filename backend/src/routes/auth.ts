@@ -17,6 +17,7 @@ const loginLimiter = rateLimit({
   message: { error: "Zu viele Anmeldeversuche. Bitte in 15 Minuten erneut versuchen." },
 });
 
+/** Admin/supervisor login — unchanged, email + password. */
 authRouter.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body ?? {};
   if (!email || !password) {
@@ -39,6 +40,37 @@ authRouter.post("/login", loginLimiter, async (req, res) => {
 
   req.session.userId = user.id;
   res.json({ id: user.id, email: user.email, role: user.role });
+});
+
+/**
+ * Employee login — name + Angestelltennummer instead of email + password.
+ * employeeNumber is looked up directly (it's a unique, plaintext staff ID,
+ * not a hash — see the schema comment on User.employeeNumber), then
+ * firstName/lastName must also match what's on file. Requiring both is
+ * mostly a UX/typo-catching measure: employeeNumber alone already
+ * identifies the account uniquely.
+ */
+authRouter.post("/employee-login", loginLimiter, async (req, res) => {
+  const { firstName, lastName, employeeNumber } = req.body ?? {};
+  if (!firstName || !lastName || !employeeNumber) {
+    return res.status(400).json({ error: "Vorname, Nachname und Angestelltennummer erforderlich." });
+  }
+
+  const user = await prisma.user.findUnique({ where: { employeeNumber: String(employeeNumber).trim() } });
+  const nameMatches =
+    user &&
+    user.firstName?.trim().toLowerCase() === String(firstName).trim().toLowerCase() &&
+    user.lastName?.trim().toLowerCase() === String(lastName).trim().toLowerCase();
+
+  if (!user || !nameMatches || user.role !== "employee") {
+    return res.status(401).json({ error: "Ungültige Anmeldedaten." });
+  }
+  if (user.employmentStatus === "resigned") {
+    return res.status(403).json({ error: "Dieses Konto ist nicht mehr aktiv." });
+  }
+
+  req.session.userId = user.id;
+  res.json({ id: user.id, firstName: user.firstName, lastName: user.lastName, role: user.role });
 });
 
 authRouter.post("/logout", (req, res) => {
@@ -64,6 +96,10 @@ authRouter.get("/me", requireAuth, async (req, res) => {
   res.json({
     id: user.id,
     email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    nickname: user.nickname,
+    employeeNumber: user.employeeNumber,
     role: user.role,
     employeeGroup: user.employeeGroup,
     hireDate: user.hireDate,
