@@ -3,6 +3,7 @@ services:
     name: arbeitskleidung-backend
     runtime: node
     plan: free
+    rootDir: backend
     buildCommand: npm install && npm run prisma:generate && npm run build
     startCommand: npm run prisma:deploy && npm start
     envVars:
@@ -21,6 +22,7 @@ services:
     name: arbeitskleidung-annual-grant
     runtime: node
     plan: free
+    rootDir: backend
     schedule: "0 3 * * *"
     buildCommand: npm install && npm run prisma:generate
     startCommand: npm run grant:run

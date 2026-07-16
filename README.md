@@ -41,7 +41,7 @@ npm run dev                 # startet auf http://localhost:5173
 
 ## Jährlicher Budget-Grant-Job
 
-Läuft in Produktion als täglicher Render Cron Job (`backend/render.yaml`). Lokal manuell testbar mit:
+Läuft in Produktion als täglicher Render Cron Job (`render.yaml`). Lokal manuell testbar mit:
 
 ```bash
 cd backend
@@ -52,7 +52,7 @@ Oder über die Admin-Oberfläche (`/admin/budget-grants`, Button "Jetzt ausführ
 
 ## Deployment
 
-- **Backend + Datenbank**: Render, siehe `backend/render.yaml` (Web Service + Cron Job + Managed
+- **Backend + Datenbank**: Render, siehe `render.yaml` (Web Service + Cron Job + Managed
   Postgres). `FRONTEND_ORIGIN` env var nach dem Netlify-Deploy auf die tatsächliche Netlify-URL setzen
   (CORS).
 - **Frontend**: Netlify, siehe `frontend/netlify.toml`. `VITE_API_URL` als Netlify-Umgebungsvariable auf
