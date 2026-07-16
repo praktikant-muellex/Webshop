@@ -1,39 +1,46 @@
 import { useState } from "react";
 import { Product } from "../api/types";
+import { Card } from "./ui/Card";
+import { Button } from "./ui/Button";
+import { selectClass } from "./ui/formStyles";
 
 export function ProductCard({ product, onAdd }: { product: Product; onAdd: (sizeLabel: string | null) => void }) {
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0]?.sizeLabel ?? "");
 
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: "0.5rem", padding: "1rem" }}>
-      <h3>{product.name}</h3>
-      {product.mandatoryForGroup && (
-        <p style={{ fontSize: "0.8rem", color: "#c62828" }}>
-          Pflicht für: {product.mandatoryForGroup.name}
-        </p>
-      )}
-      <p style={{ fontSize: "0.85rem", color: "#555" }}>{product.modelDesignation}</p>
-      <p style={{ fontSize: "0.85rem" }}>Farbe: {product.color ?? "-"}</p>
-      <p style={{ fontWeight: "bold" }}>{product.priceEur} €</p>
+    <Card className="flex flex-col p-4">
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="font-semibold text-slate-900">{product.name}</h3>
+        <span className="whitespace-nowrap font-semibold text-primary-700">{product.priceEur} €</span>
+      </div>
 
-      {product.sizes.length > 0 && (
-        <label>
-          Größe:{" "}
-          <select value={selectedSize} onChange={(e) => setSelectedSize(e.target.value)}>
+      {product.mandatoryForGroup && (
+        <span className="mt-1 inline-block w-fit rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+          Pflicht für {product.mandatoryForGroup.name}
+        </span>
+      )}
+
+      <p className="mt-2 text-sm text-slate-500">{product.modelDesignation}</p>
+      <p className="text-sm text-slate-500">Farbe: {product.color ?? "-"}</p>
+
+      <div className="mt-auto pt-4">
+        {product.sizes.length > 0 && (
+          <select
+            className={`${selectClass} mb-2`}
+            value={selectedSize}
+            onChange={(e) => setSelectedSize(e.target.value)}
+          >
             {product.sizes.map((s) => (
               <option key={s.id} value={s.sizeLabel}>
-                {s.sizeLabel}
+                Größe {s.sizeLabel}
               </option>
             ))}
           </select>
-        </label>
-      )}
-
-      <div style={{ marginTop: "0.5rem" }}>
-        <button onClick={() => onAdd(product.sizes.length > 0 ? selectedSize : null)}>
+        )}
+        <Button className="w-full" onClick={() => onAdd(product.sizes.length > 0 ? selectedSize : null)}>
           In den Warenkorb
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }

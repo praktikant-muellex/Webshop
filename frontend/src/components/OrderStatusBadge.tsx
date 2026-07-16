@@ -8,25 +8,18 @@ const LABELS: Record<OrderStatus, string> = {
   issued: "Ausgegeben",
 };
 
-const COLORS: Record<OrderStatus, string> = {
-  pending: "#e0a800",
-  approved: "#2e7d32",
-  rejected: "#c62828",
-  ready_for_pickup: "#1565c0",
-  issued: "#555555",
+const CLASSES: Record<OrderStatus, string> = {
+  pending: "bg-amber-100 text-amber-800",
+  approved: "bg-secondary-100 text-secondary-800",
+  rejected: "bg-red-100 text-red-800",
+  ready_for_pickup: "bg-blue-100 text-blue-800",
+  issued: "bg-slate-200 text-slate-700",
 };
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span
-      style={{
-        display: "inline-block",
-        padding: "0.15rem 0.5rem",
-        borderRadius: "0.75rem",
-        color: "white",
-        background: COLORS[status],
-        fontSize: "0.85rem",
-      }}
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${CLASSES[status]}`}
     >
       {LABELS[status]}
     </span>

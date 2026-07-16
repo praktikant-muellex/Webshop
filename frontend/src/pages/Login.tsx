@@ -2,6 +2,9 @@ import { FormEvent, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../api/client";
+import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
+import { inputClass, labelClass } from "../components/ui/formStyles";
 
 export function Login() {
   const { user, login } = useAuth();
@@ -29,31 +32,37 @@ export function Login() {
   };
 
   return (
-    <div style={{ maxWidth: "320px", margin: "4rem auto" }}>
-      <h1>Anmelden</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            E-Mail
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Passwort
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+      <Card className="w-full max-w-sm p-8">
+        <h1 className="mb-1 text-xl font-semibold text-primary-700">Arbeitskleidung Webshop</h1>
+        <p className="mb-6 text-sm text-slate-500">Melde dich mit deinem Firmen-Account an.</p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className={labelClass}>E-Mail</label>
+            <input
+              type="email"
+              className={inputClass}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Passwort</label>
             <input
               type="password"
+              className={inputClass}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </label>
-        </div>
-        {error && <p style={{ color: "#c62828" }}>{error}</p>}
-        <button type="submit" disabled={submitting}>
-          {submitting ? "Bitte warten..." : "Anmelden"}
-        </button>
-      </form>
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <Button type="submit" disabled={submitting} className="w-full">
+            {submitting ? "Bitte warten..." : "Anmelden"}
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { fetchAllOrders, updateOrderStatus } from "../../api/admin";
 import { Order } from "../../api/types";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
 import { ApiError } from "../../api/client";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 
 export function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
@@ -27,45 +29,55 @@ export function AdminOrderDetail() {
     }
   };
 
-  if (!order) return <p>Lade...</p>;
+  if (!order) return <p className="text-sm text-slate-500">Lade...</p>;
 
   const total = order.items.reduce((sum, i) => sum + i.unitPriceEur * i.quantity, 0);
 
   return (
     <div>
-      <h1>Bestellung von {order.user?.email}</h1>
-      <p>
-        Status: <OrderStatusBadge status={order.status} />
-      </p>
-      {order.reclaimFlag && <p style={{ color: "#c62828" }}>Rückforderungspflichtig (Austritt innerhalb 3 Monaten).</p>}
-      {error && <p style={{ color: "#c62828" }}>{error}</p>}
+      <h1 className="text-2xl font-semibold text-slate-900">Bestellung von {order.user?.email}</h1>
+      <div className="mt-2 flex items-center gap-2">
+        <span className="text-sm text-slate-500">Status:</span>
+        <OrderStatusBadge status={order.status} />
+      </div>
+      {order.reclaimFlag && (
+        <p className="mt-2 text-sm text-amber-700">
+          ⚠ Rückforderungspflichtig (Austritt innerhalb 3 Monaten).
+        </p>
+      )}
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: "left" }}>Produkt</th>
-            <th style={{ textAlign: "left" }}>Größe</th>
-            <th style={{ textAlign: "right" }}>Preis</th>
-          </tr>
-        </thead>
-        <tbody>
-          {order.items.map((i) => (
-            <tr key={i.id} style={{ borderTop: "1px solid #eee" }}>
-              <td>{i.product.name}</td>
-              <td>{i.sizeLabel ?? "-"}</td>
-              <td style={{ textAlign: "right" }}>{i.unitPriceEur} €</td>
+      <Card className="mt-4 overflow-hidden">
+        <table className="min-w-full divide-y divide-slate-200 text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Produkt</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Größe</th>
+              <th className="px-4 py-2.5 text-right font-medium text-slate-500">Preis</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <p style={{ fontWeight: "bold" }}>Gesamt: {total} €</p>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {order.items.map((i) => (
+              <tr key={i.id}>
+                <td className="px-4 py-2.5 text-slate-700">{i.product.name}</td>
+                <td className="px-4 py-2.5 text-slate-500">{i.sizeLabel ?? "-"}</td>
+                <td className="px-4 py-2.5 text-right text-slate-700">{i.unitPriceEur} €</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
 
-      {order.status === "approved" && (
-        <button onClick={() => advanceStatus("ready_for_pickup")}>Als abholbereit markieren</button>
-      )}
-      {order.status === "ready_for_pickup" && (
-        <button onClick={() => advanceStatus("issued")}>Als ausgegeben markieren</button>
-      )}
+      <p className="mt-4 text-lg font-semibold text-slate-900">Gesamt: {total} €</p>
+
+      <div className="mt-4">
+        {order.status === "approved" && (
+          <Button onClick={() => advanceStatus("ready_for_pickup")}>Als abholbereit markieren</Button>
+        )}
+        {order.status === "ready_for_pickup" && (
+          <Button onClick={() => advanceStatus("issued")}>Als ausgegeben markieren</Button>
+        )}
+      </div>
     </div>
   );
 }

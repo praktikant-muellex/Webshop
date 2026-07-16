@@ -4,6 +4,9 @@ import { fetchEmployeeLedger, createAdjustment, updateEmployee } from "../../api
 import { BudgetSummary } from "../../api/types";
 import { LedgerTable } from "../../components/LedgerTable";
 import { ApiError } from "../../api/client";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { inputClass } from "../../components/ui/formStyles";
 
 export function EmployeeDetail() {
   const { id } = useParams<{ id: string }>();
@@ -49,42 +52,64 @@ export function EmployeeDetail() {
     }
   };
 
-  if (!summary) return <p>Lade...</p>;
+  if (!summary) return <p className="text-sm text-slate-500">Lade...</p>;
 
   return (
     <div>
-      <h1>Mitarbeiter-Details</h1>
-      <p style={{ fontSize: "1.5rem", fontWeight: "bold" }}>{summary.balanceEur} € Guthaben</p>
+      <h1 className="text-2xl font-semibold text-slate-900">Mitarbeiter-Details</h1>
 
-      {message && <p style={{ color: "#2e7d32" }}>{message}</p>}
-      {error && <p style={{ color: "#c62828" }}>{error}</p>}
+      <Card className="mt-4 inline-block px-6 py-4">
+        <p className="text-sm text-slate-500">Aktuelles Guthaben</p>
+        <p className="text-3xl font-semibold text-primary-700">{summary.balanceEur} €</p>
+      </Card>
 
-      <h2>Manuelle Anpassung</h2>
-      <form onSubmit={submitAdjustment} style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-        <input
-          type="number"
-          placeholder="Betrag (€, negativ zum Abziehen)"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Begründung"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          required
-        />
-        <button type="submit">Speichern</button>
-      </form>
+      {message && (
+        <p className="mt-4 rounded-md bg-secondary-50 px-3 py-2 text-sm text-secondary-800">{message}</p>
+      )}
+      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-      <h2>Austritt erfassen</h2>
-      <form onSubmit={submitResignation} style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-        <input type="date" value={resignationDate} onChange={(e) => setResignationDate(e.target.value)} required />
-        <button type="submit">Als ausgeschieden markieren</button>
-      </form>
+      <div className="mt-8 grid gap-6 sm:grid-cols-2">
+        <Card className="p-5">
+          <h2 className="mb-3 text-base font-semibold text-slate-900">Manuelle Anpassung</h2>
+          <form onSubmit={submitAdjustment} className="space-y-3">
+            <input
+              type="number"
+              className={inputClass}
+              placeholder="Betrag (€, negativ zum Abziehen)"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              className={inputClass}
+              placeholder="Begründung"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              required
+            />
+            <Button type="submit">Speichern</Button>
+          </form>
+        </Card>
 
-      <h2>Guthaben-Verlauf</h2>
+        <Card className="p-5">
+          <h2 className="mb-3 text-base font-semibold text-slate-900">Austritt erfassen</h2>
+          <form onSubmit={submitResignation} className="space-y-3">
+            <input
+              type="date"
+              className={inputClass}
+              value={resignationDate}
+              onChange={(e) => setResignationDate(e.target.value)}
+              required
+            />
+            <Button type="submit" variant="danger">
+              Als ausgeschieden markieren
+            </Button>
+          </form>
+        </Card>
+      </div>
+
+      <h2 className="mt-8 mb-3 text-lg font-semibold text-slate-900">Guthaben-Verlauf</h2>
       <LedgerTable entries={summary.ledger} />
     </div>
   );

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { submitOrder } from "../../api/orders";
 import { ApiError } from "../../api/client";
+import { Button } from "../../components/ui/Button";
+import { Card } from "../../components/ui/Card";
 
 export function Cart() {
   const { lines, removeLine, clear } = useCart();
@@ -31,43 +33,56 @@ export function Cart() {
   if (lines.length === 0) {
     return (
       <div>
-        <h1>Warenkorb</h1>
-        <p>Dein Warenkorb ist leer.</p>
+        <h1 className="text-2xl font-semibold text-slate-900">Warenkorb</h1>
+        <p className="mt-4 text-sm text-slate-500">Dein Warenkorb ist leer.</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h1>Warenkorb</h1>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: "left" }}>Produkt</th>
-            <th style={{ textAlign: "left" }}>Größe</th>
-            <th style={{ textAlign: "right" }}>Preis</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {lines.map((line, i) => (
-            <tr key={i} style={{ borderTop: "1px solid #eee" }}>
-              <td>{line.product.name}</td>
-              <td>{line.sizeLabel ?? "-"}</td>
-              <td style={{ textAlign: "right" }}>{line.product.priceEur} €</td>
-              <td>
-                <button onClick={() => removeLine(i)}>Entfernen</button>
-              </td>
+      <h1 className="text-2xl font-semibold text-slate-900">Warenkorb</h1>
+
+      <Card className="mt-4 overflow-hidden">
+        <table className="min-w-full divide-y divide-slate-200 text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Produkt</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Größe</th>
+              <th className="px-4 py-2.5 text-right font-medium text-slate-500">Preis</th>
+              <th className="px-4 py-2.5" />
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <p style={{ fontWeight: "bold" }}>Gesamt: {total} €</p>
-      {error && <p style={{ color: "#c62828" }}>{error}</p>}
-      <button onClick={handleSubmit} disabled={submitting}>
-        {submitting ? "Wird gesendet..." : "Bestellung absenden"}
-      </button>
-      <p style={{ fontSize: "0.85rem", color: "#555" }}>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {lines.map((line, i) => (
+              <tr key={i} className="hover:bg-slate-50">
+                <td className="px-4 py-2.5 text-slate-700">{line.product.name}</td>
+                <td className="px-4 py-2.5 text-slate-500">{line.sizeLabel ?? "-"}</td>
+                <td className="px-4 py-2.5 text-right text-slate-700">{line.product.priceEur} €</td>
+                <td className="px-4 py-2.5 text-right">
+                  <button
+                    className="text-sm text-red-600 hover:text-red-700"
+                    onClick={() => removeLine(i)}
+                  >
+                    Entfernen
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+
+      <div className="mt-4 flex items-center justify-between">
+        <p className="text-lg font-semibold text-slate-900">Gesamt: {total} €</p>
+        <Button onClick={handleSubmit} disabled={submitting}>
+          {submitting ? "Wird gesendet..." : "Bestellung absenden"}
+        </Button>
+      </div>
+
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+
+      <p className="mt-4 text-sm text-slate-500">
         Die Bestellung geht als "ausstehend" ein und muss von einem Vorgesetzten freigegeben werden,
         bevor dein Guthaben belastet wird.
       </p>

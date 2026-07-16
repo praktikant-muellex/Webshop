@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { fetchGrantStatus, runAnnualGrant, GrantStatusEntry } from "../../api/admin";
 import { ApiError } from "../../api/client";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
 
 export function BudgetGrants() {
   const [status, setStatus] = useState<GrantStatusEntry[]>([]);
@@ -27,33 +29,51 @@ export function BudgetGrants() {
 
   return (
     <div>
-      <h1>Jährliches Folgebudget</h1>
-      <p>
+      <h1 className="text-2xl font-semibold text-slate-900">Jährliches Folgebudget</h1>
+      <p className="mt-2 max-w-2xl text-sm text-slate-500">
         Läuft normalerweise automatisch als täglicher Job. Hier manuell auslösen (z.B. nach einer
         Korrektur des Eintrittsdatums) oder verifizieren, wer den aktuellen Zyklus schon erhalten hat.
       </p>
-      <button onClick={handleRun}>Jetzt ausführen</button>
-      {message && <p style={{ color: "#2e7d32" }}>{message}</p>}
-      {error && <p style={{ color: "#c62828" }}>{error}</p>}
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: "left" }}>Mitarbeiter</th>
-            <th style={{ textAlign: "left" }}>Zyklus (1. Juli)</th>
-            <th style={{ textAlign: "left" }}>Erhalten?</th>
-          </tr>
-        </thead>
-        <tbody>
-          {status.map((s) => (
-            <tr key={s.userId} style={{ borderTop: "1px solid #eee" }}>
-              <td>{s.email}</td>
-              <td>{new Date(s.cycleJuly1).toLocaleDateString("de-AT")}</td>
-              <td>{s.granted ? "Ja" : "Nein"}</td>
+      <Button className="mt-4" onClick={handleRun}>
+        Jetzt ausführen
+      </Button>
+
+      {message && (
+        <p className="mt-4 rounded-md bg-secondary-50 px-3 py-2 text-sm text-secondary-800">{message}</p>
+      )}
+      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+
+      <Card className="mt-6 overflow-hidden">
+        <table className="min-w-full divide-y divide-slate-200 text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Mitarbeiter</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Zyklus (1. Juli)</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Erhalten?</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {status.map((s) => (
+              <tr key={s.userId} className="hover:bg-slate-50">
+                <td className="px-4 py-2.5 text-slate-700">{s.email}</td>
+                <td className="whitespace-nowrap px-4 py-2.5 text-slate-600">
+                  {new Date(s.cycleJuly1).toLocaleDateString("de-AT")}
+                </td>
+                <td className="px-4 py-2.5">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      s.granted ? "bg-secondary-100 text-secondary-800" : "bg-amber-100 text-amber-800"
+                    }`}
+                  >
+                    {s.granted ? "Ja" : "Nein"}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
     </div>
   );
 }

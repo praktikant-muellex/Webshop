@@ -4,6 +4,9 @@ import { fetchAllOrders, approveOrder, rejectOrder } from "../../api/admin";
 import { Order, OrderStatus } from "../../api/types";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
 import { ApiError } from "../../api/client";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { selectClass, labelClass } from "../../components/ui/formStyles";
 
 const STATUS_OPTIONS: { value: OrderStatus | ""; label: string }[] = [
   { value: "", label: "Alle" },
@@ -49,58 +52,83 @@ export function AdminOrders() {
 
   return (
     <div>
-      <h1>Bestellungen</h1>
-      <label>
-        Status:{" "}
-        <select value={status} onChange={(e) => setStatus(e.target.value as OrderStatus | "")}>
+      <h1 className="text-2xl font-semibold text-slate-900">Bestellungen</h1>
+
+      <div className="mt-4">
+        <label className={labelClass}>Status</label>
+        <select
+          className={`${selectClass} w-auto`}
+          value={status}
+          onChange={(e) => setStatus(e.target.value as OrderStatus | "")}
+        >
           {STATUS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>
           ))}
         </select>
-      </label>
+      </div>
 
-      {error && <p style={{ color: "#c62828" }}>{error}</p>}
+      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: "left" }}>Datum</th>
-            <th style={{ textAlign: "left" }}>Mitarbeiter</th>
-            <th style={{ textAlign: "left" }}>Positionen</th>
-            <th style={{ textAlign: "right" }}>Summe</th>
-            <th style={{ textAlign: "left" }}>Status</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((o) => {
-            const total = o.items.reduce((sum, i) => sum + i.unitPriceEur * i.quantity, 0);
-            return (
-              <tr key={o.id} style={{ borderTop: "1px solid #eee" }}>
-                <td>{new Date(o.submittedAt).toLocaleDateString("de-AT")}</td>
-                <td>{o.user?.email}</td>
-                <td>{o.items.map((i) => i.product.name).join(", ")}</td>
-                <td style={{ textAlign: "right" }}>{total} €</td>
-                <td>
-                  <OrderStatusBadge status={o.status} />
-                  {o.reclaimFlag && <span title="Rückforderungspflichtig"> ⚠</span>}
-                </td>
-                <td style={{ display: "flex", gap: "0.5rem" }}>
-                  <Link to={`/admin/orders/${o.id}`}>Details</Link>
-                  {o.status === "pending" && (
-                    <>
-                      <button onClick={() => handleApprove(o.id)}>Freigeben</button>
-                      <button onClick={() => handleReject(o.id)}>Ablehnen</button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <Card className="mt-4 overflow-hidden">
+        <table className="min-w-full divide-y divide-slate-200 text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Datum</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Mitarbeiter</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Positionen</th>
+              <th className="px-4 py-2.5 text-right font-medium text-slate-500">Summe</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Status</th>
+              <th className="px-4 py-2.5" />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {orders.map((o) => {
+              const total = o.items.reduce((sum, i) => sum + i.unitPriceEur * i.quantity, 0);
+              return (
+                <tr key={o.id} className="hover:bg-slate-50">
+                  <td className="whitespace-nowrap px-4 py-2.5 text-slate-600">
+                    {new Date(o.submittedAt).toLocaleDateString("de-AT")}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-700">{o.user?.email}</td>
+                  <td className="px-4 py-2.5 text-slate-600">
+                    {o.items.map((i) => i.product.name).join(", ")}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2.5 text-right text-slate-700">{total} €</td>
+                  <td className="whitespace-nowrap px-4 py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <OrderStatusBadge status={o.status} />
+                      {o.reclaimFlag && (
+                        <span title="Rückforderungspflichtig" className="text-amber-500">
+                          ⚠
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-2.5">
+                    <div className="flex items-center gap-3">
+                      <Link to={`/admin/orders/${o.id}`} className="text-primary-600 hover:text-primary-700">
+                        Details
+                      </Link>
+                      {o.status === "pending" && (
+                        <>
+                          <Button variant="secondary" className="px-2.5 py-1" onClick={() => handleApprove(o.id)}>
+                            Freigeben
+                          </Button>
+                          <Button variant="danger" className="px-2.5 py-1" onClick={() => handleReject(o.id)}>
+                            Ablehnen
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </Card>
     </div>
   );
 }

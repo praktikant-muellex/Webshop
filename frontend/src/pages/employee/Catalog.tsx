@@ -4,6 +4,7 @@ import { Product, ProductCategory } from "../../api/types";
 import { ProductCard } from "../../components/ProductCard";
 import { useCart } from "../../context/CartContext";
 import { ApiError } from "../../api/client";
+import { selectClass } from "../../components/ui/formStyles";
 
 const CATEGORIES: { value: ProductCategory | ""; label: string }[] = [
   { value: "", label: "Alle Kategorien" },
@@ -31,17 +32,23 @@ export function Catalog() {
 
   return (
     <div>
-      <h1>Katalog</h1>
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-        <label>
+      <h1 className="text-2xl font-semibold text-slate-900">Katalog</h1>
+
+      <div className="mt-4 flex flex-wrap items-center gap-4">
+        <label className="flex items-center gap-2 text-sm text-slate-700">
           <input
             type="checkbox"
+            className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
             checked={mandatoryOnly}
             onChange={(e) => setMandatoryOnly(e.target.checked)}
-          />{" "}
+          />
           Nur Pflicht für meine Gruppe
         </label>
-        <select value={category} onChange={(e) => setCategory(e.target.value as ProductCategory | "")}>
+        <select
+          className={`${selectClass} w-auto`}
+          value={category}
+          onChange={(e) => setCategory(e.target.value as ProductCategory | "")}
+        >
           {CATEGORIES.map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}
@@ -50,10 +57,14 @@ export function Catalog() {
         </select>
       </div>
 
-      {error && <p style={{ color: "#c62828" }}>{error}</p>}
-      {addedMessage && <p style={{ color: "#2e7d32" }}>{addedMessage}</p>}
+      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {addedMessage && (
+        <p className="mt-4 rounded-md bg-secondary-50 px-3 py-2 text-sm text-secondary-800">
+          {addedMessage}
+        </p>
+      )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {products.map((p) => (
           <ProductCard
             key={p.id}

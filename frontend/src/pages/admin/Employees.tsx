@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchEmployees } from "../../api/admin";
 import { EmployeeListItem } from "../../api/types";
+import { Card } from "../../components/ui/Card";
 
 export function Employees() {
   const [employees, setEmployees] = useState<EmployeeListItem[]>([]);
@@ -12,33 +13,52 @@ export function Employees() {
 
   return (
     <div>
-      <h1>Mitarbeiter</h1>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: "left" }}>E-Mail</th>
-            <th style={{ textAlign: "left" }}>Gruppe</th>
-            <th style={{ textAlign: "left" }}>Eintrittsdatum</th>
-            <th style={{ textAlign: "left" }}>Status</th>
-            <th style={{ textAlign: "right" }}>Guthaben</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {employees.map((e) => (
-            <tr key={e.id} style={{ borderTop: "1px solid #eee" }}>
-              <td>{e.email}</td>
-              <td>{e.employeeGroup?.name ?? "-"}</td>
-              <td>{e.hireDate ? new Date(e.hireDate).toLocaleDateString("de-AT") : "-"}</td>
-              <td>{e.employmentStatus}</td>
-              <td style={{ textAlign: "right" }}>{e.balanceEur} €</td>
-              <td>
-                <Link to={`/admin/employees/${e.id}`}>Details</Link>
-              </td>
+      <h1 className="text-2xl font-semibold text-slate-900">Mitarbeiter</h1>
+
+      <Card className="mt-4 overflow-hidden">
+        <table className="min-w-full divide-y divide-slate-200 text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">E-Mail</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Gruppe</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Eintrittsdatum</th>
+              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Status</th>
+              <th className="px-4 py-2.5 text-right font-medium text-slate-500">Guthaben</th>
+              <th className="px-4 py-2.5" />
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {employees.map((e) => (
+              <tr key={e.id} className="hover:bg-slate-50">
+                <td className="px-4 py-2.5 text-slate-700">{e.email}</td>
+                <td className="px-4 py-2.5 text-slate-600">{e.employeeGroup?.name ?? "-"}</td>
+                <td className="whitespace-nowrap px-4 py-2.5 text-slate-600">
+                  {e.hireDate ? new Date(e.hireDate).toLocaleDateString("de-AT") : "-"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2.5">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      e.employmentStatus === "active"
+                        ? "bg-secondary-100 text-secondary-800"
+                        : "bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    {e.employmentStatus === "active" ? "Aktiv" : "Ausgeschieden"}
+                  </span>
+                </td>
+                <td className="whitespace-nowrap px-4 py-2.5 text-right text-slate-700">
+                  {e.balanceEur} €
+                </td>
+                <td className="whitespace-nowrap px-4 py-2.5 text-right">
+                  <Link to={`/admin/employees/${e.id}`} className="text-primary-600 hover:text-primary-700">
+                    Details
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
     </div>
   );
 }

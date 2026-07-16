@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchMyBudget } from "../../api/budget";
 import { BudgetSummary } from "../../api/types";
 import { LedgerTable } from "../../components/LedgerTable";
+import { Card } from "../../components/ui/Card";
 
 export function Budget() {
   const [summary, setSummary] = useState<BudgetSummary | null>(null);
@@ -10,13 +11,18 @@ export function Budget() {
     fetchMyBudget().then(setSummary);
   }, []);
 
-  if (!summary) return <p>Lade...</p>;
+  if (!summary) return <p className="text-sm text-slate-500">Lade...</p>;
 
   return (
     <div>
-      <h1>Mein Guthaben</h1>
-      <p style={{ fontSize: "1.5rem", fontWeight: "bold" }}>{summary.balanceEur} €</p>
-      <h2>Verlauf</h2>
+      <h1 className="text-2xl font-semibold text-slate-900">Mein Guthaben</h1>
+
+      <Card className="mt-4 inline-block px-6 py-4">
+        <p className="text-sm text-slate-500">Aktuelles Guthaben</p>
+        <p className="text-3xl font-semibold text-primary-700">{summary.balanceEur} €</p>
+      </Card>
+
+      <h2 className="mt-8 mb-3 text-lg font-semibold text-slate-900">Verlauf</h2>
       <LedgerTable entries={summary.ledger} />
     </div>
   );
