@@ -8,6 +8,7 @@ import { productsRouter } from "./routes/products";
 import { ordersRouter } from "./routes/orders";
 import { budgetRouter } from "./routes/budget";
 import { adminRouter } from "./routes/admin";
+import { internalRouter } from "./routes/internal";
 
 export function createApp() {
   const app = express();
@@ -45,6 +46,7 @@ export function createApp() {
   app.use("/orders", ordersRouter);
   app.use("/budget", budgetRouter);
   app.use("/admin", adminRouter);
+  app.use("/internal", internalRouter);
 
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error(err);
