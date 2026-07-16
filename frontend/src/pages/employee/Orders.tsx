@@ -5,6 +5,7 @@ import { Order } from "../../api/types";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
 import { Card } from "../../components/ui/Card";
 import { PageHeading } from "../../components/ui/PageHeading";
+import { productLabel } from "../../lib/productLabel";
 
 export function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -40,7 +41,7 @@ export function Orders() {
                       {new Date(o.submittedAt).toLocaleDateString("de-AT")}
                     </td>
                     <td className="px-4 py-2.5 text-slate-700">
-                      {o.items.map((i) => i.product.name).join(", ")}
+                      {o.items.map((i) => productLabel(i.product)).join(", ")}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2.5 text-right text-slate-700">{total} €</td>
                     <td className="whitespace-nowrap px-4 py-2.5">

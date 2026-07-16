@@ -7,7 +7,8 @@
     "color": "weiß",
     "priceEur": 14,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": "XS - 4XL"
+    "sizeRangeRaw": "XS - 4XL",
+    "imageUrl": "/products/tshirt-kurzarm-weiss.png"
   },
   {
     "category": "SHIRTS",
@@ -17,7 +18,8 @@
     "color": "grau",
     "priceEur": 13,
     "mandatoryForGroupCode": "beifahrer",
-    "sizeRangeRaw": "S - 5XL"
+    "sizeRangeRaw": "S - 5XL",
+    "imageUrl": "/products/tshirt-kurzarm-grau.png"
   },
   {
     "category": "SHIRTS",
@@ -27,7 +29,8 @@
     "color": "grau",
     "priceEur": 15,
     "mandatoryForGroupCode": "beifahrer",
-    "sizeRangeRaw": "S - 4XL"
+    "sizeRangeRaw": "S - 4XL",
+    "imageUrl": "/products/tshirt-langarm-grau.png"
   },
   {
     "category": "SHIRTS",
@@ -37,7 +40,8 @@
     "color": "grau",
     "priceEur": 25,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": "S - 4XL"
+    "sizeRangeRaw": "S - 4XL",
+    "imageUrl": "/products/poloshirt-grau.png"
   },
   {
     "category": "SHIRTS",
@@ -47,7 +51,8 @@
     "color": "weiß",
     "priceEur": 25,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": "S - 4XL"
+    "sizeRangeRaw": "S - 4XL",
+    "imageUrl": "/products/poloshirt-weiss.png"
   },
   {
     "category": "HOSEN",
@@ -57,7 +62,8 @@
     "color": "warnorange / dunkelblau",
     "priceEur": 43,
     "mandatoryForGroupCode": "beifahrer",
-    "sizeRangeRaw": "46 - 54"
+    "sizeRangeRaw": "46 - 54",
+    "imageUrl": "/products/warnschutzhose-kurz.png"
   },
   {
     "category": "HOSEN",
@@ -67,7 +73,8 @@
     "color": "warnorange / anthrazit",
     "priceEur": 58,
     "mandatoryForGroupCode": "beifahrer",
-    "sizeRangeRaw": "44 - 68"
+    "sizeRangeRaw": "44 - 68",
+    "imageUrl": "/products/warnschutz-bundhose.png"
   },
   {
     "category": "HOSEN",
@@ -77,7 +84,8 @@
     "color": "warnorange / anthrazit",
     "priceEur": 68,
     "mandatoryForGroupCode": "beifahrer",
-    "sizeRangeRaw": "44 - 68"
+    "sizeRangeRaw": "44 - 68",
+    "imageUrl": "/products/warnschutz-latzhose.png"
   },
   {
     "category": "HOSEN",
@@ -87,7 +95,8 @@
     "color": "warnorange",
     "priceEur": 14,
     "mandatoryForGroupCode": "beifahrer",
-    "sizeRangeRaw": "S - 2XL"
+    "sizeRangeRaw": "S - 2XL",
+    "imageUrl": "/products/regenhose.png"
   },
   {
     "category": "HOSEN",
@@ -97,7 +106,8 @@
     "color": "schwarz",
     "priceEur": 52,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": "44 - 68"
+    "sizeRangeRaw": "44 - 68",
+    "imageUrl": "/products/cargohose-kurz.png"
   },
   {
     "category": "HOSEN",
@@ -107,7 +117,8 @@
     "color": "schwarz",
     "priceEur": 53,
     "mandatoryForGroupCode": "instandhaltung_hofpersonal",
-    "sizeRangeRaw": "42 - 62"
+    "sizeRangeRaw": "42 - 62",
+    "imageUrl": "/products/cargohose-robust.png"
   },
   {
     "category": "HOSEN",
@@ -117,7 +128,8 @@
     "color": "schwarz",
     "priceEur": 60,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": "42 - 68"
+    "sizeRangeRaw": "42 - 68",
+    "imageUrl": "/products/cargohose-stretch.png"
   },
   {
     "category": "PULLOVER",
@@ -127,7 +139,8 @@
     "color": "anthrazit",
     "priceEur": 27,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": "XS - 6XL"
+    "sizeRangeRaw": "XS - 6XL",
+    "imageUrl": "/products/zip-sweatshirt.png"
   },
   {
     "category": "PULLOVER",
@@ -137,7 +150,8 @@
     "color": "anthrazit",
     "priceEur": 29,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": "XS - 7XL"
+    "sizeRangeRaw": "XS - 7XL",
+    "imageUrl": "/products/hoody-sweatshirt.png"
   },
   {
     "category": "JACKEN_WESTEN",
@@ -147,7 +161,8 @@
     "color": "warnorange / grau",
     "priceEur": 118,
     "mandatoryForGroupCode": "beifahrer",
-    "sizeRangeRaw": "S - 4XL"
+    "sizeRangeRaw": "S - 4XL",
+    "imageUrl": "/products/warnschutz-multifunktionsjacke.png"
   },
   {
     "category": "JACKEN_WESTEN",
@@ -157,7 +172,8 @@
     "color": "warnorange / anthrazit",
     "priceEur": 56,
     "mandatoryForGroupCode": "beifahrer",
-    "sizeRangeRaw": "S - 5XL"
+    "sizeRangeRaw": "S - 5XL",
+    "imageUrl": "/products/warnschutz-weste.png"
   },
   {
     "category": "JACKEN_WESTEN",
@@ -167,7 +183,8 @@
     "color": "schwarz",
     "priceEur": 59,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": "XS - 4XL"
+    "sizeRangeRaw": "XS - 4XL",
+    "imageUrl": "/products/weste.png"
   },
   {
     "category": "JACKEN_WESTEN",
@@ -177,7 +194,8 @@
     "color": "schwarz",
     "priceEur": 63,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": "S - 6XL"
+    "sizeRangeRaw": "S - 6XL",
+    "imageUrl": "/products/softshelljacke.png"
   },
   {
     "category": "ZUBEHOER",
@@ -187,6 +205,7 @@
     "color": null,
     "priceEur": 8,
     "mandatoryForGroupCode": null,
-    "sizeRangeRaw": null
+    "sizeRangeRaw": null,
+    "imageUrl": "/products/warnschutz-gurt.png"
   }
 ]

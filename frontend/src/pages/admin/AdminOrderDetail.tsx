@@ -7,6 +7,7 @@ import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { PageHeading } from "../../components/ui/PageHeading";
+import { productLabel } from "../../lib/productLabel";
 
 export function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
@@ -60,7 +61,18 @@ export function AdminOrderDetail() {
           <tbody className="divide-y divide-slate-100">
             {order.items.map((i) => (
               <tr key={i.id}>
-                <td className="px-4 py-2.5 text-slate-700">{i.product.name}</td>
+                <td className="px-4 py-2.5 text-slate-700">
+                  <div className="flex items-center gap-3">
+                    {i.product.imageUrl && (
+                      <img
+                        src={i.product.imageUrl}
+                        alt={i.product.name}
+                        className="h-10 w-10 rounded object-contain"
+                      />
+                    )}
+                    <span>{productLabel(i.product)}</span>
+                  </div>
+                </td>
                 <td className="px-4 py-2.5 text-slate-500">{i.sizeLabel ?? "-"}</td>
                 <td className="px-4 py-2.5 text-right text-slate-700">{i.unitPriceEur} €</td>
               </tr>

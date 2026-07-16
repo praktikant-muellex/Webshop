@@ -41,6 +41,7 @@ export interface Product {
   material: string | null;
   color: string | null;
   priceEur: number;
+  imageUrl: string | null;
   mandatoryForGroup: EmployeeGroup | null;
   sizeRangeRaw: string | null;
   sizes: ProductSize[];

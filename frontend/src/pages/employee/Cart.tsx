@@ -57,7 +57,23 @@ export function Cart() {
           <tbody className="divide-y divide-slate-100">
             {lines.map((line, i) => (
               <tr key={i} className="hover:bg-slate-50">
-                <td className="px-4 py-2.5 text-slate-700">{line.product.name}</td>
+                <td className="px-4 py-2.5 text-slate-700">
+                  <div className="flex items-center gap-3">
+                    {line.product.imageUrl && (
+                      <img
+                        src={line.product.imageUrl}
+                        alt={line.product.name}
+                        className="h-10 w-10 rounded object-contain"
+                      />
+                    )}
+                    <span>
+                      {line.product.name}
+                      {line.product.color && (
+                        <span className="text-slate-400"> ({line.product.color})</span>
+                      )}
+                    </span>
+                  </div>
+                </td>
                 <td className="px-4 py-2.5 text-slate-500">{line.sizeLabel ?? "-"}</td>
                 <td className="px-4 py-2.5 text-right text-slate-700">{line.product.priceEur} €</td>
                 <td className="px-4 py-2.5 text-right">

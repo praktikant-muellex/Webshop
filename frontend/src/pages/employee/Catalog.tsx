@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { fetchProducts } from "../../api/products";
 import { Product, ProductCategory } from "../../api/types";
-import { ProductCard } from "../../components/ProductCard";
+import { ProductGroupCard } from "../../components/ProductGroupCard";
+import { ProductDetailModal } from "../../components/ProductDetailModal";
 import { useCart } from "../../context/CartContext";
 import { ApiError } from "../../api/client";
 import { selectClass } from "../../components/ui/formStyles";
@@ -23,6 +24,7 @@ export function Catalog() {
   const [error, setError] = useState<string | null>(null);
   const { addLine } = useCart();
   const [addedMessage, setAddedMessage] = useState<string | null>(null);
+  const [openGroupName, setOpenGroupName] = useState<string | null>(null);
 
   useEffect(() => {
     setError(null);
@@ -30,6 +32,21 @@ export function Catalog() {
       .then(setProducts)
       .catch((err) => setError(err instanceof ApiError ? err.message : "Katalog konnte nicht geladen werden."));
   }, [mandatoryOnly, category]);
+
+  // Color variants of the same article (e.g. "Poloshirt" in grau/weiß) share
+  // one name in the catalog — group them so they render as a single card
+  // with a color switcher instead of one card per color.
+  const groups = useMemo(() => {
+    const byName = new Map<string, Product[]>();
+    for (const p of products) {
+      const existing = byName.get(p.name);
+      if (existing) existing.push(p);
+      else byName.set(p.name, [p]);
+    }
+    return Array.from(byName.entries());
+  }, [products]);
+
+  const openGroup = groups.find(([name]) => name === openGroupName);
 
   return (
     <div>
@@ -66,18 +83,27 @@ export function Catalog() {
       )}
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {products.map((p) => (
-          <ProductCard
-            key={p.id}
-            product={p}
-            onAdd={(sizeLabel) => {
-              addLine(p, sizeLabel);
-              setAddedMessage(`${p.name} wurde zum Warenkorb hinzugefügt.`);
-              setTimeout(() => setAddedMessage(null), 2000);
-            }}
+        {groups.map(([name, variants]) => (
+          <ProductGroupCard
+            key={name}
+            name={name}
+            variants={variants}
+            onOpen={() => setOpenGroupName(name)}
           />
         ))}
       </div>
+
+      {openGroup && (
+        <ProductDetailModal
+          variants={openGroup[1]}
+          onClose={() => setOpenGroupName(null)}
+          onAdd={(product, sizeLabel) => {
+            addLine(product, sizeLabel);
+            setAddedMessage(`${product.name} wurde zum Warenkorb hinzugefügt.`);
+            setTimeout(() => setAddedMessage(null), 2000);
+          }}
+        />
+      )}
     </div>
   );
 }

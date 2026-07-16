@@ -19,6 +19,7 @@ interface ProductSeed {
   priceEur: number;
   mandatoryForGroupCode: string | null;
   sizeRangeRaw: string | null;
+  imageUrl: string | null;
 }
 
 const ALPHA_SIZE_SEQUENCE = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL", "7XL", "8XL"];
@@ -97,6 +98,7 @@ export async function seedCatalog() {
       material: p.material,
       color: p.color,
       priceEur: p.priceEur,
+      imageUrl: p.imageUrl,
       mandatoryForGroupId,
       sizeRangeRaw: p.sizeRangeRaw,
       active: true,

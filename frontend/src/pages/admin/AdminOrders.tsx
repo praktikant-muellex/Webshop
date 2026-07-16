@@ -8,6 +8,7 @@ import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { selectClass, labelClass } from "../../components/ui/formStyles";
 import { PageHeading } from "../../components/ui/PageHeading";
+import { productLabel } from "../../lib/productLabel";
 
 const STATUS_OPTIONS: { value: OrderStatus | ""; label: string }[] = [
   { value: "", label: "Alle" },
@@ -94,7 +95,7 @@ export function AdminOrders() {
                   </td>
                   <td className="px-4 py-2.5 text-slate-700">{o.user?.email}</td>
                   <td className="px-4 py-2.5 text-slate-600">
-                    {o.items.map((i) => i.product.name).join(", ")}
+                    {o.items.map((i) => productLabel(i.product)).join(", ")}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2.5 text-right text-slate-700">{total} €</td>
                   <td className="whitespace-nowrap px-4 py-2.5">

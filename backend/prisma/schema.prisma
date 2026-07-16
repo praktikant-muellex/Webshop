@@ -92,6 +92,7 @@ model Product {
   material             String?
   color                String?
   priceEur             Int
+  imageUrl             String?
   mandatoryForGroupId  String?
   mandatoryForGroup    EmployeeGroup?   @relation(fields: [mandatoryForGroupId], references: [id])
   sizeRangeRaw         String?
