@@ -1,6 +1,6 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
-import { OrderStatus } from "@prisma/client";
+import { EmploymentStatus, OrderStatus, Prisma } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import { requireRole } from "../middleware/auth";
 import { getBalanceEur, getLedger, runAnnualGrantJob, getGrantStatusForCurrentCycle } from "../services/budgetLedger";
@@ -17,6 +17,13 @@ export const adminRouter = Router();
 
 const staffOnly = requireRole("admin", "supervisor");
 const adminOnly = requireRole("admin");
+
+const VALID_ORDER_STATUSES = new Set(Object.values(OrderStatus));
+const VALID_EMPLOYMENT_STATUSES = new Set(Object.values(EmploymentStatus));
+
+async function findEmployeeOr404(id: string) {
+  return prisma.user.findFirst({ where: { id, role: "employee" } });
+}
 
 // --- Employees -------------------------------------------------------------
 
@@ -43,6 +50,9 @@ adminRouter.get("/employees", staffOnly, async (_req, res) => {
 });
 
 adminRouter.get("/employees/:id/ledger", staffOnly, async (req, res) => {
+  const employee = await findEmployeeOr404(req.params.id);
+  if (!employee) return res.status(404).json({ error: "Mitarbeiter nicht gefunden." });
+
   const [balanceEur, ledger] = await Promise.all([
     getBalanceEur(req.params.id),
     getLedger(req.params.id),
@@ -51,9 +61,15 @@ adminRouter.get("/employees/:id/ledger", staffOnly, async (req, res) => {
 });
 
 adminRouter.post("/employees/:id/adjustments", adminOnly, async (req, res) => {
+  const employee = await findEmployeeOr404(req.params.id);
+  if (!employee) return res.status(404).json({ error: "Mitarbeiter nicht gefunden." });
+
   const { amountEur, note } = req.body ?? {};
-  if (typeof amountEur !== "number" || !note) {
-    return res.status(400).json({ error: "amountEur (Zahl) und note erforderlich." });
+  if (typeof amountEur !== "number" || !Number.isFinite(amountEur) || !Number.isInteger(amountEur)) {
+    return res.status(400).json({ error: "amountEur muss eine ganze Zahl sein." });
+  }
+  if (amountEur === 0 || !note || typeof note !== "string" || !note.trim()) {
+    return res.status(400).json({ error: "amountEur (ungleich 0) und note erforderlich." });
   }
 
   const entry = await prisma.budgetLedgerEntry.create({
@@ -75,6 +91,12 @@ adminRouter.post("/employees", adminOnly, async (req, res) => {
   if (!email || !password || !employeeGroupCode || !hireDate) {
     return res.status(400).json({ error: "email, password, employeeGroupCode und hireDate erforderlich." });
   }
+  if (typeof password !== "string" || password.length < 8) {
+    return res.status(400).json({ error: "Passwort muss mindestens 8 Zeichen lang sein." });
+  }
+  if (Number.isNaN(new Date(hireDate).getTime())) {
+    return res.status(400).json({ error: "hireDate ist kein gültiges Datum." });
+  }
 
   const group = await prisma.employeeGroup.findUnique({ where: { code: employeeGroupCode } });
   if (!group) {
@@ -83,15 +105,23 @@ adminRouter.post("/employees", adminOnly, async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 12);
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      role: role === "admin" || role === "supervisor" ? role : "employee",
-      employeeGroupId: group.id,
-      hireDate: new Date(hireDate),
-    },
-  });
+  let user;
+  try {
+    user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        role: role === "admin" || role === "supervisor" ? role : "employee",
+        employeeGroupId: group.id,
+        hireDate: new Date(hireDate),
+      },
+    });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return res.status(409).json({ error: `E-Mail ${email} ist bereits vergeben.` });
+    }
+    throw err;
+  }
 
   const dueBy = new Date(user.hireDate!);
   dueBy.setUTCMonth(dueBy.getUTCMonth() + 3);
@@ -103,6 +133,9 @@ adminRouter.post("/employees", adminOnly, async (req, res) => {
 });
 
 adminRouter.patch("/employees/:id", adminOnly, async (req, res) => {
+  const employee = await findEmployeeOr404(req.params.id);
+  if (!employee) return res.status(404).json({ error: "Mitarbeiter nicht gefunden." });
+
   const { employeeGroupCode, employmentStatus, resignationDate } = req.body ?? {};
   const data: Record<string, unknown> = {};
 
@@ -111,8 +144,19 @@ adminRouter.patch("/employees/:id", adminOnly, async (req, res) => {
     if (!group) return res.status(400).json({ error: `Unbekannte Mitarbeitergruppe: ${employeeGroupCode}` });
     data.employeeGroupId = group.id;
   }
-  if (employmentStatus) data.employmentStatus = employmentStatus;
-  if (resignationDate) data.resignationDate = new Date(resignationDate);
+  if (employmentStatus) {
+    if (!VALID_EMPLOYMENT_STATUSES.has(employmentStatus)) {
+      return res.status(400).json({ error: `Unbekannter employmentStatus: ${employmentStatus}` });
+    }
+    data.employmentStatus = employmentStatus;
+  }
+  if (resignationDate) {
+    const parsed = new Date(resignationDate);
+    if (Number.isNaN(parsed.getTime())) {
+      return res.status(400).json({ error: "resignationDate ist kein gültiges Datum." });
+    }
+    data.resignationDate = parsed;
+  }
 
   const user = await prisma.user.update({ where: { id: req.params.id }, data });
 
@@ -138,12 +182,19 @@ adminRouter.get("/orders", staffOnly, async (req, res) => {
   const where: Record<string, unknown> = {};
 
   if (employeeId && typeof employeeId === "string") where.userId = employeeId;
-  if (status && typeof status === "string") where.status = status as OrderStatus;
+  if (status && typeof status === "string") {
+    if (!VALID_ORDER_STATUSES.has(status as OrderStatus)) {
+      return res.status(400).json({ error: `Unbekannter Status: ${status}` });
+    }
+    where.status = status as OrderStatus;
+  }
   if (dateFrom || dateTo) {
-    where.submittedAt = {
-      ...(dateFrom ? { gte: new Date(dateFrom as string) } : {}),
-      ...(dateTo ? { lte: new Date(dateTo as string) } : {}),
-    };
+    const gte = dateFrom ? new Date(dateFrom as string) : undefined;
+    const lte = dateTo ? new Date(dateTo as string) : undefined;
+    if ((gte && Number.isNaN(gte.getTime())) || (lte && Number.isNaN(lte.getTime()))) {
+      return res.status(400).json({ error: "dateFrom/dateTo ist kein gültiges Datum." });
+    }
+    where.submittedAt = { ...(gte ? { gte } : {}), ...(lte ? { lte } : {}) };
   }
 
   const orders = await prisma.order.findMany({
@@ -170,7 +221,9 @@ adminRouter.post("/orders/:id/approve", staffOnly, async (req, res) => {
 
 adminRouter.post("/orders/:id/reject", staffOnly, async (req, res) => {
   const { reason } = req.body ?? {};
-  if (!reason) return res.status(400).json({ error: "reason erforderlich." });
+  if (!reason || typeof reason !== "string" || !reason.trim()) {
+    return res.status(400).json({ error: "reason erforderlich." });
+  }
   try {
     const order = await rejectOrder(req.params.id, req.session.userId!, reason);
     res.json(order);

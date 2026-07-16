@@ -1,3 +1,4 @@
+import "express-async-errors";
 import express from "express";
 import cors from "cors";
 import session from "express-session";
@@ -12,6 +13,10 @@ import { internalRouter } from "./routes/internal";
 
 export function createApp() {
   const app = express();
+
+  // Render/Netlify sit behind a reverse proxy — needed so req.secure and
+  // rate-limit's IP detection reflect the real client, not the proxy hop.
+  app.set("trust proxy", 1);
 
   app.use(
     cors({
@@ -48,8 +53,12 @@ export function createApp() {
   app.use("/admin", adminRouter);
   app.use("/internal", internalRouter);
 
+  // Catch-all: with express-async-errors imported above, rejected promises
+  // from `async (req, res) => {...}` route handlers reach here too instead
+  // of crashing the process (Express 4 doesn't do this on its own).
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error(err);
+    if (res.headersSent) return;
     res.status(500).json({ error: "Interner Serverfehler." });
   });
 

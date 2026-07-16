@@ -1,5 +1,10 @@
-import { LedgerEntryType } from "@prisma/client";
+import { LedgerEntryType, Prisma } from "@prisma/client";
 import { prisma } from "../db/prisma";
+
+/** True for Prisma's "unique constraint violated" error (P2002). */
+function isUniqueConstraintError(err: unknown): boolean {
+  return err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
+}
 
 /**
  * All budget math lives here. The running balance is never stored as a
@@ -54,15 +59,24 @@ export async function ensureBaseGrant(userId: string, referenceDate: Date = new 
   });
   if (existing) return;
 
-  await prisma.budgetLedgerEntry.create({
-    data: {
-      userId,
-      entryType: LedgerEntryType.base_grant,
-      amountEur: user.employeeGroup.baseBudgetEur,
-      effectiveDate: eligibleFrom,
-      note: `Grundausstattungsbudget freigeschaltet (Monat 4 ab Einstellung ${user.hireDate.toISOString().slice(0, 10)}).`,
-    },
-  });
+  try {
+    await prisma.budgetLedgerEntry.create({
+      data: {
+        userId,
+        entryType: LedgerEntryType.base_grant,
+        amountEur: user.employeeGroup.baseBudgetEur,
+        effectiveDate: eligibleFrom,
+        note: `Grundausstattungsbudget freigeschaltet (Monat 4 ab Einstellung ${user.hireDate.toISOString().slice(0, 10)}).`,
+      },
+    });
+  } catch (err) {
+    // Two concurrent requests (e.g. /auth/me and /budget/me firing close
+    // together) can both pass the existence check above before either
+    // commits; the partial unique index on (userId) WHERE entryType =
+    // 'base_grant' lets exactly one insert succeed. Losing this race is the
+    // expected, harmless outcome — the grant exists either way.
+    if (!isUniqueConstraintError(err)) throw err;
+  }
 }
 
 /** Jan=0 .. Jun=5 (0-indexed month). Matches the "Eintritt im März -> 4/12" example. */
@@ -130,28 +144,37 @@ export async function runAnnualGrantJob(referenceDate: Date = new Date()) {
       if (existing) continue;
 
       const fullAmount = user.employeeGroup.annualBudgetEur;
-      if (prorated) {
-        const months = proratedMonthsForFirstYear(user.hireDate);
-        const amount = Math.round((fullAmount * months) / 12);
-        await prisma.budgetLedgerEntry.create({
-          data: {
-            userId: user.id,
-            entryType: LedgerEntryType.annual_grant_prorated,
-            amountEur: amount,
-            effectiveDate,
-            note: `Anteiliges Folgebudget ${months}/12 (Einstellung ${user.hireDate.toISOString().slice(0, 10)}, Stichtag 30. Juni).`,
-          },
-        });
-      } else {
-        await prisma.budgetLedgerEntry.create({
-          data: {
-            userId: user.id,
-            entryType: LedgerEntryType.annual_grant,
-            amountEur: fullAmount,
-            effectiveDate,
-            note: `Jährliches Folgebudget zum 1. Juli ${effectiveDate.getUTCFullYear()}.`,
-          },
-        });
+      try {
+        if (prorated) {
+          const months = proratedMonthsForFirstYear(user.hireDate);
+          const amount = Math.round((fullAmount * months) / 12);
+          await prisma.budgetLedgerEntry.create({
+            data: {
+              userId: user.id,
+              entryType: LedgerEntryType.annual_grant_prorated,
+              amountEur: amount,
+              effectiveDate,
+              note: `Anteiliges Folgebudget ${months}/12 (Einstellung ${user.hireDate.toISOString().slice(0, 10)}, Stichtag 30. Juni).`,
+            },
+          });
+        } else {
+          await prisma.budgetLedgerEntry.create({
+            data: {
+              userId: user.id,
+              entryType: LedgerEntryType.annual_grant,
+              amountEur: fullAmount,
+              effectiveDate,
+              note: `Jährliches Folgebudget zum 1. Juli ${effectiveDate.getUTCFullYear()}.`,
+            },
+          });
+        }
+      } catch (err) {
+        // Same race as ensureBaseGrant: the cron run and a manual "Jetzt
+        // ausführen" click could overlap. The partial unique index on
+        // (userId, effectiveDate) makes losing that race a no-op instead of
+        // a duplicate grant.
+        if (!isUniqueConstraintError(err)) throw err;
+        continue;
       }
       grantedCount += 1;
     }

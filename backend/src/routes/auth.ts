@@ -1,12 +1,23 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
+import rateLimit from "express-rate-limit";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middleware/auth";
 import { ensureBaseGrant } from "../services/budgetLedger";
 
 export const authRouter = Router();
 
-authRouter.post("/login", async (req, res) => {
+// Login is the one endpoint an attacker can hit without already being
+// authenticated, so it's the one worth throttling against brute force.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Zu viele Anmeldeversuche. Bitte in 15 Minuten erneut versuchen." },
+});
+
+authRouter.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body ?? {};
   if (!email || !password) {
     return res.status(400).json({ error: "E-Mail und Passwort erforderlich." });
@@ -20,6 +31,10 @@ authRouter.post("/login", async (req, res) => {
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
     return res.status(401).json({ error: "Ungültige Anmeldedaten." });
+  }
+
+  if (user.employmentStatus === "resigned") {
+    return res.status(403).json({ error: "Dieses Konto ist nicht mehr aktiv." });
   }
 
   req.session.userId = user.id;

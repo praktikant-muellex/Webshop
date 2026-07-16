@@ -10,10 +10,24 @@ interface OrderItemInput {
   quantity?: number;
 }
 
+const MAX_ITEMS_PER_ORDER = 50;
+const MAX_QUANTITY_PER_ITEM = 20;
+
 ordersRouter.post("/", requireAuth, async (req, res) => {
   const items: OrderItemInput[] = req.body?.items ?? [];
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: "Bestellung benötigt mindestens eine Position." });
+  }
+  if (items.length > MAX_ITEMS_PER_ORDER) {
+    return res.status(400).json({ error: `Maximal ${MAX_ITEMS_PER_ORDER} Positionen pro Bestellung.` });
+  }
+  for (const item of items) {
+    if (
+      item.quantity !== undefined &&
+      (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > MAX_QUANTITY_PER_ITEM)
+    ) {
+      return res.status(400).json({ error: `Menge muss zwischen 1 und ${MAX_QUANTITY_PER_ITEM} liegen.` });
+    }
   }
 
   const productIds = items.map((i) => i.productId);
@@ -46,7 +60,7 @@ ordersRouter.post("/", requireAuth, async (req, res) => {
             productId: product.id,
             sizeLabel: item.sizeLabel ?? null,
             unitPriceEur: product.priceEur,
-            quantity: item.quantity && item.quantity > 0 ? item.quantity : 1,
+            quantity: item.quantity ?? 1,
           };
         }),
       },

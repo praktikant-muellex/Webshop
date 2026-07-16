@@ -164,6 +164,11 @@ model BudgetLedgerEntry {
   createdByUser   User?           @relation("LedgerCreator", fields: [createdByUserId], references: [id])
   createdAt       DateTime        @default(now())
 
+  // Two partial unique indexes (one grant per user; one annual grant per
+  // user per July-1 cycle) live in migrations/20260716131452_.../migration.sql.
+  // Prisma's schema DSL can't express a WHERE-filtered unique index, so they
+  // aren't declared here — don't `prisma db push` this model, it would try
+  // to drop them. Always go through migrate deploy.
   @@map("budget_ledger_entries")
 }
 

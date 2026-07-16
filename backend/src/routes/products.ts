@@ -5,12 +5,17 @@ import { requireAuth } from "../middleware/auth";
 
 export const productsRouter = Router();
 
+const VALID_CATEGORIES = new Set(Object.values(ProductCategory));
+
 productsRouter.get("/", requireAuth, async (req, res) => {
   const { mandatoryForMe, category } = req.query;
 
   const where: Record<string, unknown> = { active: true };
 
   if (category && typeof category === "string") {
+    if (!VALID_CATEGORIES.has(category as ProductCategory)) {
+      return res.status(400).json({ error: `Unbekannte Kategorie: ${category}` });
+    }
     where.category = category as ProductCategory;
   }
 

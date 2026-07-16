@@ -1,8 +1,17 @@
 import { Router, Request, Response, NextFunction } from "express";
+import { timingSafeEqual } from "crypto";
 import { runAnnualGrantJob } from "../services/budgetLedger";
 import { seedCatalog } from "../services/seedCatalog";
 
 export const internalRouter = Router();
+
+/** Constant-time string comparison — avoids leaking the secret one byte at a time via response timing. */
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 /**
  * Shared secret instead of a user session: these endpoints are called by
@@ -11,7 +20,7 @@ export const internalRouter = Router();
  */
 function requireCronSecret(req: Request, res: Response, next: NextFunction) {
   const secret = req.header("x-cron-secret");
-  if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
+  if (!process.env.CRON_SECRET || !secret || !safeEqual(secret, process.env.CRON_SECRET)) {
     return res.status(401).json({ error: "Ungültiges oder fehlendes Secret." });
   }
   next();
