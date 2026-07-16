@@ -14,10 +14,10 @@ export function ProductGroupCard({ name, variants, onOpen }: ProductGroupCardPro
 
   return (
     <div
-      className="flex cursor-pointer flex-col overflow-hidden rounded-lg border border-secondary-500 bg-white shadow-sm transition-shadow hover:shadow-md"
+      className="flex cursor-pointer flex-col overflow-hidden rounded-lg border-2 border-secondary-500 bg-slate-50 shadow-sm transition-shadow hover:shadow-md"
       onClick={onOpen}
     >
-      <div className="flex h-72 items-center justify-center bg-slate-50 p-2">
+      <div className="flex h-72 items-center justify-center p-2">
         {first.imageUrl ? (
           <img src={first.imageUrl} alt={name} className="h-full w-full object-contain" />
         ) : (
