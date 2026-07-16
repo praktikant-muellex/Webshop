@@ -7,6 +7,7 @@ import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { inputClass } from "../../components/ui/formStyles";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 export function EmployeeDetail() {
   const { id } = useParams<{ id: string }>();
@@ -56,7 +57,7 @@ export function EmployeeDetail() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Mitarbeiter-Details</h1>
+      <PageHeading>Mitarbeiter-Details</PageHeading>
 
       <Card className="mt-4 inline-block px-6 py-4">
         <p className="text-sm text-slate-500">Aktuelles Guthaben</p>

@@ -4,6 +4,7 @@ import { fetchOrder } from "../../api/orders";
 import { Order } from "../../api/types";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
 import { Card } from "../../components/ui/Card";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 export function OrderDetail() {
   const { id } = useParams<{ id: string }>();
@@ -19,9 +20,9 @@ export function OrderDetail() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">
+      <PageHeading>
         Bestellung vom {new Date(order.submittedAt).toLocaleDateString("de-AT")}
-      </h1>
+      </PageHeading>
       <div className="mt-2 flex items-center gap-2">
         <span className="text-sm text-slate-500">Status:</span>
         <OrderStatusBadge status={order.status} />

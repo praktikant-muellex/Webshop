@@ -5,6 +5,7 @@ import { submitOrder } from "../../api/orders";
 import { ApiError } from "../../api/client";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 export function Cart() {
   const { lines, removeLine, clear } = useCart();
@@ -33,7 +34,7 @@ export function Cart() {
   if (lines.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Warenkorb</h1>
+        <PageHeading>Warenkorb</PageHeading>
         <p className="mt-4 text-sm text-slate-500">Dein Warenkorb ist leer.</p>
       </div>
     );
@@ -41,7 +42,7 @@ export function Cart() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Warenkorb</h1>
+      <PageHeading>Warenkorb</PageHeading>
 
       <Card className="mt-4 overflow-hidden">
         <table className="min-w-full divide-y divide-slate-200 text-sm">

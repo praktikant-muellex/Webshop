@@ -3,6 +3,7 @@ import { fetchGrantStatus, runAnnualGrant, GrantStatusEntry } from "../../api/ad
 import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 export function BudgetGrants() {
   const [status, setStatus] = useState<GrantStatusEntry[]>([]);
@@ -29,7 +30,7 @@ export function BudgetGrants() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Jährliches Folgebudget</h1>
+      <PageHeading>Jährliches Folgebudget</PageHeading>
       <p className="mt-2 max-w-2xl text-sm text-slate-500">
         Läuft normalerweise automatisch als täglicher Job. Hier manuell auslösen (z.B. nach einer
         Korrektur des Eintrittsdatums) oder verifizieren, wer den aktuellen Zyklus schon erhalten hat.

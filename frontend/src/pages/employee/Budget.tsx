@@ -3,6 +3,7 @@ import { fetchMyBudget } from "../../api/budget";
 import { BudgetSummary } from "../../api/types";
 import { LedgerTable } from "../../components/LedgerTable";
 import { Card } from "../../components/ui/Card";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 export function Budget() {
   const [summary, setSummary] = useState<BudgetSummary | null>(null);
@@ -15,7 +16,7 @@ export function Budget() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Mein Guthaben</h1>
+      <PageHeading>Mein Guthaben</PageHeading>
 
       <Card className="mt-4 inline-block px-6 py-4">
         <p className="text-sm text-slate-500">Aktuelles Guthaben</p>

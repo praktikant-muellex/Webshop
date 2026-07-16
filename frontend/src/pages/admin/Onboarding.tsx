@@ -4,6 +4,7 @@ import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { inputClass, selectClass, labelClass } from "../../components/ui/formStyles";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 const GROUPS = [
   { code: "fahrer", label: "Fahrer" },
@@ -37,7 +38,7 @@ export function Onboarding() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Neuen Mitarbeiter anlegen</h1>
+      <PageHeading>Neuen Mitarbeiter anlegen</PageHeading>
 
       <Card className="mt-4 max-w-md p-6">
         <form onSubmit={handleSubmit} className="space-y-4">

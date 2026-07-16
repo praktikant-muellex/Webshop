@@ -4,6 +4,7 @@ import { fetchMyOrders } from "../../api/orders";
 import { Order } from "../../api/types";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
 import { Card } from "../../components/ui/Card";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 export function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -14,7 +15,7 @@ export function Orders() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Meine Bestellungen</h1>
+      <PageHeading>Meine Bestellungen</PageHeading>
 
       {orders.length === 0 ? (
         <p className="mt-4 text-sm text-slate-500">Noch keine Bestellungen.</p>

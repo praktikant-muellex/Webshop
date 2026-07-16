@@ -5,6 +5,7 @@ import { ProductCard } from "../../components/ProductCard";
 import { useCart } from "../../context/CartContext";
 import { ApiError } from "../../api/client";
 import { selectClass } from "../../components/ui/formStyles";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 const CATEGORIES: { value: ProductCategory | ""; label: string }[] = [
   { value: "", label: "Alle Kategorien" },
@@ -32,7 +33,7 @@ export function Catalog() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Katalog</h1>
+      <PageHeading>Katalog</PageHeading>
 
       <div className="mt-4 flex flex-wrap items-center gap-4">
         <label className="flex items-center gap-2 text-sm text-slate-700">

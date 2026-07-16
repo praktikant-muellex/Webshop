@@ -15,7 +15,7 @@ export function EmployeeLayout() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
-            <span className="text-lg font-semibold text-primary-700">Arbeitskleidung Webshop</span>
+            <img src="/logo-compact.png" alt="müllex" className="h-8 w-auto" />
             <nav className="flex gap-1">
               <NavLink to="/catalog" className={navLinkClass}>
                 Katalog

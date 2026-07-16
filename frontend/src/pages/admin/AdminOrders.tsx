@@ -7,6 +7,7 @@ import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { selectClass, labelClass } from "../../components/ui/formStyles";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 const STATUS_OPTIONS: { value: OrderStatus | ""; label: string }[] = [
   { value: "", label: "Alle" },
@@ -52,7 +53,7 @@ export function AdminOrders() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Bestellungen</h1>
+      <PageHeading>Bestellungen</PageHeading>
 
       <div className="mt-4">
         <label className={labelClass}>Status</label>

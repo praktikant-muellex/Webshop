@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { fetchEmployees } from "../../api/admin";
 import { EmployeeListItem } from "../../api/types";
 import { Card } from "../../components/ui/Card";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 export function Employees() {
   const [employees, setEmployees] = useState<EmployeeListItem[]>([]);
@@ -13,7 +14,7 @@ export function Employees() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Mitarbeiter</h1>
+      <PageHeading>Mitarbeiter</PageHeading>
 
       <Card className="mt-4 overflow-hidden">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
