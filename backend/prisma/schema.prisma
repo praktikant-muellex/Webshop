@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  employee
+  supervisor
+  admin
+}
+
+enum AuthProvider {
+  local
+}
+
+enum EmploymentStatus {
+  active
+  resigned
+}
+
+enum ProductCategory {
+  SHIRTS
+  HOSEN
+  PULLOVER
+  JACKEN_WESTEN
+  ZUBEHOER
+}
+
+enum OrderStatus {
+  pending
+  approved
+  rejected
+  ready_for_pickup
+  issued
+}
+
+enum LedgerEntryType {
+  base_grant
+  annual_grant
+  annual_grant_prorated
+  order_deduction
+  order_refund
+  manual_adjustment
+}
+
+model EmployeeGroup {
+  id              String   @id @default(uuid())
+  code            String   @unique
+  name            String
+  baseBudgetEur   Int
+  annualBudgetEur Int
+  createdAt       DateTime @default(now())
+
+  users               User[]
+  mandatoryForProducts Product[]
+
+  @@map("employee_groups")
+}
+
+model User {
+  id                String            @id @default(uuid())
+  email             String            @unique
+  passwordHash      String?
+  authProvider      AuthProvider      @default(local)
+  role              Role              @default(employee)
+  employeeGroupId   String?
+  employeeGroup     EmployeeGroup?    @relation(fields: [employeeGroupId], references: [id])
+  hireDate          DateTime?         @db.Date
+  employmentStatus  EmploymentStatus  @default(active)
+  resignationDate   DateTime?         @db.Date
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  orders                Order[]              @relation("OrderOwner")
+  decidedOrders         Order[]              @relation("OrderDecider")
+  ledgerEntries         BudgetLedgerEntry[]  @relation("LedgerOwner")
+  createdLedgerEntries  BudgetLedgerEntry[]  @relation("LedgerCreator")
+  loanerRecords         LoanerRecord[]
+
+  @@map("users")
+}
+
+model Product {
+  id                   String           @id @default(uuid())
+  category             ProductCategory
+  name                 String
+  modelDesignation     String?
+  material             String?
+  color                String?
+  priceEur             Int
+  mandatoryForGroupId  String?
+  mandatoryForGroup    EmployeeGroup?   @relation(fields: [mandatoryForGroupId], references: [id])
+  sizeRangeRaw         String?
+  active               Boolean          @default(true)
+  createdAt            DateTime         @default(now())
+
+  sizes      ProductSize[]
+  orderItems OrderItem[]
+
+  // Natural key for idempotent seed upserts.
+  @@unique([name, color, modelDesignation], name: "naturalKey")
+  @@map("products")
+}
+
+model ProductSize {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizeLabel String
+  sortOrder Int
+
+  @@unique([productId, sizeLabel])
+  @@map("product_sizes")
+}
+
+model Order {
+  id                String      @id @default(uuid())
+  userId            String
+  user              User        @relation("OrderOwner", fields: [userId], references: [id])
+  status            OrderStatus @default(pending)
+  submittedAt       DateTime    @default(now())
+  decidedAt         DateTime?
+  decidedByUserId   String?
+  decidedByUser     User?       @relation("OrderDecider", fields: [decidedByUserId], references: [id])
+  rejectionReason   String?
+  reclaimFlag       Boolean     @default(false)
+  createdAt         DateTime    @default(now())
+
+  items         OrderItem[]
+  ledgerEntries BudgetLedgerEntry[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(uuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  sizeLabel   String?
+  unitPriceEur Int
+  quantity    Int     @default(1)
+
+  @@map("order_items")
+}
+
+model BudgetLedgerEntry {
+  id              String          @id @default(uuid())
+  userId          String
+  user            User            @relation("LedgerOwner", fields: [userId], references: [id])
+  entryType       LedgerEntryType
+  amountEur       Int
+  relatedOrderId  String?
+  relatedOrder    Order?          @relation(fields: [relatedOrderId], references: [id])
+  effectiveDate   DateTime        @db.Date
+  note            String
+  createdByUserId String?
+  createdByUser   User?           @relation("LedgerCreator", fields: [createdByUserId], references: [id])
+  createdAt       DateTime        @default(now())
+
+  @@map("budget_ledger_entries")
+}
+
+model LoanerRecord {
+  id               String    @id @default(uuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id])
+  issuedAt         DateTime  @db.Date
+  dueBy            DateTime  @db.Date
+  returnedAt       DateTime? @db.Date
+  note             String?
+  createdAt        DateTime  @default(now())
+
+  @@map("loaner_records")
+}

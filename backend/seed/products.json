@@ -1,0 +1,192 @@
+[
+  {
+    "category": "SHIRTS",
+    "name": "T-Shirt Baumwolle kurzarm",
+    "modelDesignation": "e.s. T-Shirt cotton",
+    "material": "Oberstoff 95% Baumwolle / 5% Elasthan (ca. 180g/m2)",
+    "color": "weiß",
+    "priceEur": 14,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": "XS - 4XL"
+  },
+  {
+    "category": "SHIRTS",
+    "name": "T-Shirt Baumwolle kurzarm",
+    "modelDesignation": "T-Shirt e.s. industry",
+    "material": "Oberstoff 60% Baumwolle / 40% Polyester (ca. 165g/m2)",
+    "color": "grau",
+    "priceEur": 13,
+    "mandatoryForGroupCode": "beifahrer",
+    "sizeRangeRaw": "S - 5XL"
+  },
+  {
+    "category": "SHIRTS",
+    "name": "T-Shirt Baumwolle langarm",
+    "modelDesignation": "e.s. Longsleeve cotton",
+    "material": "Oberstoff 100% Baumwolle (ca. 195g/m2)",
+    "color": "grau",
+    "priceEur": 15,
+    "mandatoryForGroupCode": "beifahrer",
+    "sizeRangeRaw": "S - 4XL"
+  },
+  {
+    "category": "SHIRTS",
+    "name": "Poloshirt",
+    "modelDesignation": "e.s. Piqué-Polo cotton stretch",
+    "material": "Oberstoff 60% Baumwolle / 40% Polyester (ca. 190g/m2)",
+    "color": "grau",
+    "priceEur": 25,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": "S - 4XL"
+  },
+  {
+    "category": "SHIRTS",
+    "name": "Poloshirt",
+    "modelDesignation": "e.s. Piqué-Polo cotton stretch",
+    "material": "Oberstoff 60% Baumwolle / 40% Polyester (ca. 190g/m2)",
+    "color": "weiß",
+    "priceEur": 25,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": "S - 4XL"
+  },
+  {
+    "category": "HOSEN",
+    "name": "Warnschutzhose kurz",
+    "modelDesignation": "Warnschutz Funktionsshorts e.s. ambition",
+    "material": "Oberstoff 100% Polyester (ca. 235g/m2)",
+    "color": "warnorange / dunkelblau",
+    "priceEur": 43,
+    "mandatoryForGroupCode": "beifahrer",
+    "sizeRangeRaw": "46 - 54"
+  },
+  {
+    "category": "HOSEN",
+    "name": "Warnschutz Bundhose",
+    "modelDesignation": "Warnschutz-Bundhose e.s. motion",
+    "material": "Oberstoff 85% Polyester / 15% Baumwolle (ca. 318g/m2)",
+    "color": "warnorange / anthrazit",
+    "priceEur": 58,
+    "mandatoryForGroupCode": "beifahrer",
+    "sizeRangeRaw": "44 - 68"
+  },
+  {
+    "category": "HOSEN",
+    "name": "Warnschutz Latzhose",
+    "modelDesignation": "Warnschutz-Latzhose e.s. motion",
+    "material": "Oberstoff 85% Polyester / 15% Baumwolle (ca. 318g/m2)",
+    "color": "warnorange / anthrazit",
+    "priceEur": 68,
+    "mandatoryForGroupCode": "beifahrer",
+    "sizeRangeRaw": "44 - 68"
+  },
+  {
+    "category": "HOSEN",
+    "name": "Regenhose",
+    "modelDesignation": "Stonekit Warnschutz-Bundhose",
+    "material": "Oberstoff 100% Polyester (ca. 185g/m2)",
+    "color": "warnorange",
+    "priceEur": 14,
+    "mandatoryForGroupCode": "beifahrer",
+    "sizeRangeRaw": "S - 2XL"
+  },
+  {
+    "category": "HOSEN",
+    "name": "Cargohose kurz",
+    "modelDesignation": "Short e.s. vision stretch",
+    "material": "Oberstoff 90% Polyamid / 10% Elasthan (ca. 175g/m2)",
+    "color": "schwarz",
+    "priceEur": 52,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": "44 - 68"
+  },
+  {
+    "category": "HOSEN",
+    "name": "Cargohose robust",
+    "modelDesignation": "Bundhose e.s. vision",
+    "material": "Oberstoff 65% Polyester / 35% Baumwolle (ca. 175g/m2)",
+    "color": "schwarz",
+    "priceEur": 53,
+    "mandatoryForGroupCode": "instandhaltung_hofpersonal",
+    "sizeRangeRaw": "42 - 62"
+  },
+  {
+    "category": "HOSEN",
+    "name": "Cargohose stretch",
+    "modelDesignation": "Cargohose e.s. vision stretch",
+    "material": "Oberstoff 90% Polyamid / 10% Elasthan (ca. 175g/m2)",
+    "color": "schwarz",
+    "priceEur": 60,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": "42 - 68"
+  },
+  {
+    "category": "PULLOVER",
+    "name": "Zip-Sweatshirt",
+    "modelDesignation": "e.s. ZIP-Sweatshirt poly cotton",
+    "material": "Oberstoff 60% Baumwolle / 40% Polyester (ca. 300g/m2)",
+    "color": "anthrazit",
+    "priceEur": 27,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": "XS - 6XL"
+  },
+  {
+    "category": "PULLOVER",
+    "name": "Hoody Sweatshirt",
+    "modelDesignation": "e.s. Hoody-Sweatshirt poly cotton",
+    "material": "Oberstoff 60% Baumwolle / 40% Polyester (ca. 300g/m2)",
+    "color": "anthrazit",
+    "priceEur": 29,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": "XS - 7XL"
+  },
+  {
+    "category": "JACKEN_WESTEN",
+    "name": "Warnschutz Multifunktionsjacke",
+    "modelDesignation": "Warnschutz-Funktionsjacke e.s. prestige",
+    "material": "Oberstoff 100% Polyester (ca. 144g/m2), Futter 100% Polyamid",
+    "color": "warnorange / grau",
+    "priceEur": 118,
+    "mandatoryForGroupCode": "beifahrer",
+    "sizeRangeRaw": "S - 4XL"
+  },
+  {
+    "category": "JACKEN_WESTEN",
+    "name": "Warnschutz Weste",
+    "modelDesignation": "Warnschutz-Weste e.s. motion",
+    "material": "Oberstoff 85% Polyester / 15% Baumwolle (ca. 318g/m2)",
+    "color": "warnorange / anthrazit",
+    "priceEur": 56,
+    "mandatoryForGroupCode": "beifahrer",
+    "sizeRangeRaw": "S - 5XL"
+  },
+  {
+    "category": "JACKEN_WESTEN",
+    "name": "Weste",
+    "modelDesignation": "Weste Thermaflor e.s. dynashild",
+    "material": "Oberstoff 96% Polyester / 4% Elasthan (ca. 350g/m2), Oberstoff 91% Polyamid / 9% Elasthan, Wattierung 100% Polyester",
+    "color": "schwarz",
+    "priceEur": 59,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": "XS - 4XL"
+  },
+  {
+    "category": "JACKEN_WESTEN",
+    "name": "Softshelljacke",
+    "modelDesignation": "Softshelljacke e.s. vision",
+    "material": "Oberstoff 100% Polyester (ca. 290g/m2)",
+    "color": "schwarz",
+    "priceEur": 63,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": "S - 6XL"
+  },
+  {
+    "category": "ZUBEHOER",
+    "name": "Warnschutz-Gurt",
+    "modelDesignation": null,
+    "material": null,
+    "color": null,
+    "priceEur": 8,
+    "mandatoryForGroupCode": null,
+    "sizeRangeRaw": null
+  }
+]

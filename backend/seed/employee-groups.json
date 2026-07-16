@@ -1,0 +1,26 @@
+[
+  {
+    "code": "fahrer",
+    "name": "Fahrer",
+    "baseBudgetEur": 500,
+    "annualBudgetEur": 200
+  },
+  {
+    "code": "beifahrer",
+    "name": "Beifahrer",
+    "baseBudgetEur": 650,
+    "annualBudgetEur": 250
+  },
+  {
+    "code": "laderfahrer_anlagenbediener",
+    "name": "Laderfahrer & Anlagenbediener",
+    "baseBudgetEur": 500,
+    "annualBudgetEur": 200
+  },
+  {
+    "code": "instandhaltung_hofpersonal",
+    "name": "Instandhaltung & Hofpersonal",
+    "baseBudgetEur": 650,
+    "annualBudgetEur": 330
+  }
+]
