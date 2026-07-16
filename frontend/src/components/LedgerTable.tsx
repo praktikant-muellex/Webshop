@@ -15,7 +15,7 @@ export function LedgerTable({ entries }: { entries: BudgetLedgerEntry[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200">
+    <div className="overflow-x-auto rounded-lg border border-slate-200">
       <table className="min-w-full divide-y divide-slate-200 text-sm">
         <thead className="bg-slate-50">
           <tr>

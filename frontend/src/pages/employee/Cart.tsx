@@ -44,7 +44,7 @@ export function Cart() {
     <div>
       <PageHeading>Warenkorb</PageHeading>
 
-      <Card className="mt-4 overflow-hidden">
+      <Card className="mt-4 overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>

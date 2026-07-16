@@ -73,7 +73,7 @@ export function AdminOrders() {
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-      <Card className="mt-4 overflow-hidden">
+      <Card className="mt-4 overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50">
             <tr>
