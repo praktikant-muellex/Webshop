@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 export function PageHeading({ children }: { children: ReactNode }) {
   return (
     <div className="mb-6">
-      <h1 className="text-2xl font-bold text-primary-700">{children}</h1>
+      <h1 className="text-2xl font-bold text-primary-500">{children}</h1>
       <div className="mt-2 h-0.5 w-16 bg-secondary-500" />
     </div>
   );

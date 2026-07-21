@@ -22,6 +22,9 @@ ordersRouter.post("/", requireAuth, async (req, res) => {
     return res.status(400).json({ error: `Maximal ${MAX_ITEMS_PER_ORDER} Positionen pro Bestellung.` });
   }
   for (const item of items) {
+    if (typeof item.productId !== "string" || !item.productId) {
+      return res.status(400).json({ error: "Jede Position braucht eine productId." });
+    }
     if (
       item.quantity !== undefined &&
       (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > MAX_QUANTITY_PER_ITEM)

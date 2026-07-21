@@ -5,6 +5,7 @@ import { employeeLabel } from "../lib/employeeLabel";
 
 const NAV_ITEMS = [
   { to: "/catalog", label: "Katalog" },
+  { to: "/grundausstattung", label: "Grundausstattung" },
   { to: "/cart", label: "Warenkorb" },
   { to: "/orders", label: "Meine Bestellungen" },
   { to: "/budget", label: "Mein Guthaben" },
@@ -14,7 +15,7 @@ export function EmployeeLayout() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen">
       <AppHeader
         brand={<img src="/logo-compact.png" alt="müllex" className="h-8 w-auto" />}
         navItems={NAV_ITEMS}

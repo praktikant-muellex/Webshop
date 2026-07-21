@@ -19,6 +19,23 @@ services:
         sync: false
       - key: CRON_SECRET
         generateValue: true
+      # Not set automatically — fill these in manually in the Render
+      # dashboard after the first deploy. Missing RESEND_API_KEY/RECEIPT_*
+      # just skips sending receipt emails (logged, non-fatal). Missing
+      # SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD is more serious: seedCatalog.ts
+      # falls back to the well-known admin@muellex.com / changeme123
+      # defaults from this public repo — set these before ever running
+      # /internal/seed against a real database.
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RECEIPT_FROM_EMAIL
+        sync: false
+      - key: RECEIPT_TO_EMAIL
+        sync: false
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
 
 databases:
   - name: arbeitskleidung-db

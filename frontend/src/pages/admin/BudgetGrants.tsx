@@ -12,7 +12,12 @@ export function BudgetGrants() {
   const [error, setError] = useState<string | null>(null);
 
   const load = () => {
-    fetchGrantStatus().then(setStatus);
+    fetchGrantStatus()
+      .then((data) => {
+        setStatus(data);
+        setError(null);
+      })
+      .catch(() => setError("Status konnte nicht geladen werden."));
   };
 
   useEffect(load, []);
@@ -48,11 +53,11 @@ export function BudgetGrants() {
 
       <Card className="mt-6 overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50">
+          <thead className="bg-secondary-500">
             <tr>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Mitarbeiter</th>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Zyklus (1. Juli)</th>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Erhalten?</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Mitarbeiter</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Zyklus (1. Juli)</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Erhalten?</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

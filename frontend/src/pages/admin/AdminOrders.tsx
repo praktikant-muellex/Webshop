@@ -17,7 +17,7 @@ const STATUS_OPTIONS: { value: OrderStatus | ""; label: string }[] = [
   { value: "approved", label: "Freigegeben" },
   { value: "rejected", label: "Abgelehnt" },
   { value: "ready_for_pickup", label: "Abholbereit" },
-  { value: "issued", label: "Ausgegeben" },
+  { value: "issued", label: "Abgeholt" },
 ];
 
 export function AdminOrders() {
@@ -26,7 +26,12 @@ export function AdminOrders() {
   const [error, setError] = useState<string | null>(null);
 
   const load = () => {
-    fetchAllOrders({ status: status || undefined }).then(setOrders);
+    fetchAllOrders({ status: status || undefined })
+      .then((data) => {
+        setOrders(data);
+        setError(null);
+      })
+      .catch(() => setError("Bestellungen konnten nicht geladen werden."));
   };
 
   useEffect(load, [status]);
@@ -43,7 +48,11 @@ export function AdminOrders() {
 
   const handleReject = async (id: string) => {
     const reason = window.prompt("Ablehnungsgrund:");
-    if (!reason) return;
+    if (reason === null) return; // cancelled
+    if (!reason.trim()) {
+      setError("Ablehnungsgrund darf nicht leer sein.");
+      return;
+    }
     setError(null);
     try {
       await rejectOrder(id, reason);
@@ -76,13 +85,13 @@ export function AdminOrders() {
 
       <Card className="mt-4 overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50">
+          <thead className="bg-secondary-500">
             <tr>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Datum</th>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Mitarbeiter</th>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Positionen</th>
-              <th className="px-4 py-2.5 text-right font-medium text-slate-500">Summe</th>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Status</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Datum</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Mitarbeiter</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Positionen</th>
+              <th className="px-4 py-2.5 text-right font-bold text-white">Summe</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Status</th>
               <th className="px-4 py-2.5" />
             </tr>
           </thead>
@@ -111,7 +120,10 @@ export function AdminOrders() {
                   </td>
                   <td className="whitespace-nowrap px-4 py-2.5">
                     <div className="flex items-center gap-3">
-                      <Link to={`/admin/orders/${o.id}`} className="text-primary-600 hover:text-primary-700">
+                      <Link
+                        to={`/admin/orders/${o.id}`}
+                        className="inline-block rounded-md border-2 border-secondary-500 bg-white px-3 py-2 text-sm font-semibold text-primary-700 transition-colors hover:bg-secondary-50"
+                      >
                         Details
                       </Link>
                       {o.status === "pending" && (

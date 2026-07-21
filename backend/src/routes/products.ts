@@ -41,7 +41,7 @@ productsRouter.get("/:id", requireAuth, async (req, res) => {
     where: { id: req.params.id },
     include: { sizes: { orderBy: { sortOrder: "asc" } }, mandatoryForGroup: true },
   });
-  if (!product) {
+  if (!product || !product.active) {
     return res.status(404).json({ error: "Produkt nicht gefunden." });
   }
   res.json(product);

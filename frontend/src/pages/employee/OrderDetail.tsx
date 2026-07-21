@@ -10,11 +10,27 @@ import { productLabel } from "../../lib/productLabel";
 export function OrderDetail() {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (id) fetchOrder(id).then(setOrder);
+    let cancelled = false;
+    setOrder(null);
+    setError(null);
+    if (id) {
+      fetchOrder(id)
+        .then((data) => {
+          if (!cancelled) setOrder(data);
+        })
+        .catch(() => {
+          if (!cancelled) setError("Bestellung konnte nicht geladen werden.");
+        });
+    }
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
+  if (error) return <p className="text-sm text-red-600">{error}</p>;
   if (!order) return <p className="text-sm text-slate-500">Lade...</p>;
 
   const total = order.items.reduce((sum, i) => sum + i.unitPriceEur * i.quantity, 0);
@@ -34,11 +50,11 @@ export function OrderDetail() {
 
       <Card className="mt-4 overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50">
+          <thead className="bg-secondary-500">
             <tr>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Produkt</th>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Größe</th>
-              <th className="px-4 py-2.5 text-right font-medium text-slate-500">Preis</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Produkt</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Größe</th>
+              <th className="px-4 py-2.5 text-right font-bold text-white">Preis</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

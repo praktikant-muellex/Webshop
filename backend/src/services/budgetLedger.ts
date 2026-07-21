@@ -1,5 +1,6 @@
 import { LedgerEntryType, Prisma } from "@prisma/client";
 import { prisma } from "../db/prisma";
+import { addMonthsClamped } from "./dateMath";
 
 /** True for Prisma's "unique constraint violated" error (P2002). */
 function isUniqueConstraintError(err: unknown): boolean {
@@ -21,17 +22,59 @@ export async function getBalanceEur(userId: string): Promise<number> {
   return result._sum.amountEur ?? 0;
 }
 
+export class NegativeBalanceError extends Error {
+  constructor(public readonly balanceEur: number, public readonly amountEur: number) {
+    super(
+      `Guthaben kann nicht negativ werden: aktuell ${balanceEur} €, Anpassung von ${amountEur} € würde ${
+        balanceEur + amountEur
+      } € ergeben.`
+    );
+  }
+}
+
+/**
+ * A manual balance adjustment (admin correction), guarded so it can never
+ * push an employee's balance below 0 € — same row-lock-then-check pattern as
+ * approveOrder, so two concurrent adjustments for the same employee can't
+ * each read the same pre-adjustment balance and both pass the check.
+ */
+export async function createManualAdjustment(
+  userId: string,
+  amountEur: number,
+  note: string,
+  createdByUserId: string
+) {
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`;
+
+    const balanceAgg = await tx.budgetLedgerEntry.aggregate({
+      where: { userId },
+      _sum: { amountEur: true },
+    });
+    const balanceEur = balanceAgg._sum.amountEur ?? 0;
+
+    if (balanceEur + amountEur < 0) {
+      throw new NegativeBalanceError(balanceEur, amountEur);
+    }
+
+    return tx.budgetLedgerEntry.create({
+      data: {
+        userId,
+        entryType: LedgerEntryType.manual_adjustment,
+        amountEur,
+        effectiveDate: new Date(),
+        note,
+        createdByUserId,
+      },
+    });
+  });
+}
+
 export async function getLedger(userId: string) {
   return prisma.budgetLedgerEntry.findMany({
     where: { userId },
     orderBy: { effectiveDate: "asc" },
   });
-}
-
-function addMonths(date: Date, months: number): Date {
-  const d = new Date(date);
-  d.setUTCMonth(d.getUTCMonth() + months);
-  return d;
 }
 
 function toDateOnly(date: Date): Date {
@@ -51,7 +94,7 @@ export async function ensureBaseGrant(userId: string, referenceDate: Date = new 
   if (!user || !user.employeeGroup || !user.hireDate) return;
   if (user.employmentStatus !== "active") return;
 
-  const eligibleFrom = toDateOnly(addMonths(user.hireDate, 4));
+  const eligibleFrom = toDateOnly(addMonthsClamped(user.hireDate, 4));
   if (toDateOnly(referenceDate) < eligibleFrom) return;
 
   const existing = await prisma.budgetLedgerEntry.findFirst({

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN "hidden" BOOLEAN NOT NULL DEFAULT false;

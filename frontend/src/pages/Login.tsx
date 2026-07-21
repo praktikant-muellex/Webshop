@@ -50,10 +50,10 @@ export function Login() {
     }`;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-sm p-8">
         <img src="/logo-full.png" alt="müllex – abfall sammeln & recyceln" className="mb-6 h-14 w-auto" />
-        <h1 className="mb-1 text-xl font-semibold text-primary-700">Arbeitskleidung Webshop</h1>
+        <h1 className="mb-1 text-xl font-semibold text-primary-500">Arbeitskleidung Webshop</h1>
         <p className="mb-6 text-sm text-slate-500">Melde dich an, um fortzufahren.</p>
 
         <div className="mb-6 flex rounded-md bg-slate-100 p-1">
@@ -88,7 +88,7 @@ export function Login() {
               />
             </div>
             <div>
-              <label className={labelClass}>Angestelltennummer</label>
+              <label className={labelClass}>Personalnummer</label>
               <input
                 type="text"
                 className={inputClass}

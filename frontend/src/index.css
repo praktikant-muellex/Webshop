@@ -33,4 +33,50 @@
 body {
   font-family: var(--font-sans);
   @apply bg-slate-50 text-slate-900;
+  /* Establishes body as the stacking context the pattern's negative
+     z-index is resolved against — without this, `z-index: -1` on a fixed
+     descendant can escape below the page's own canvas/background in some
+     browsers instead of just sitting behind body's normal content. */
+  position: relative;
+}
+
+/* A scattered-triangle pattern in the brand green, confined to the bottom
+   third of the viewport. Explicit negative z-index (not just DOM order)
+   guarantees every real element — buttons, icons, product tiles, cards,
+   whatever — paints above it: per the CSS stacking rules, ANY positioned
+   element (fixed/absolute/relative), even with no z-index at all, paints
+   above plain static-flow content regardless of DOM order. Relying on DOM
+   order alone let the pattern bleed on top of un-backgrounded elements;
+   z-index: -1 puts it in an earlier paint step than all normal content,
+   full stop. The page-level layout wrappers (AdminLayout/EmployeeLayout/
+   Login) stay transparent instead of re-painting their own bg-slate-50 over
+   it, so it's visible in the gaps around real content. */
+body::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* --pattern-growth (kept updated in App.tsx, a fraction of the real
+     scroll distance) grows this band upward as the page scrolls, capped so
+     it never swallows more than two-thirds of the screen. Translating the
+     whole fixed box instead (an earlier attempt) lifted its bottom edge
+     away from the true viewport bottom, leaving a growing gap of plain
+     background below it — anchoring `bottom: 0` permanently and growing
+     `height` instead means the band always still reaches the bottom edge,
+     it just visibly expands upward while doing so. */
+  height: min(33.333vh + var(--pattern-growth, 0px), 66.666vh);
+  background-image: url("/triangle-pattern.svg");
+  background-repeat: repeat;
+  background-size: 220px 220px;
+  pointer-events: none;
+  z-index: -1;
+  /* A smooth vertical opacity ramp instead of one flat value: 70% right at
+     the bottom edge, fading to 40% by the top of this band (where it meets
+     the middle third of the page). A mask's alpha channel — not the
+     `opacity` property, which can only be one flat number for the whole
+     element — is what lets opacity vary continuously by position. Scales
+     with the band automatically since the gradient is relative to its box. */
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
 }

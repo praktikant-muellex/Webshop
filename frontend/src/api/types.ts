@@ -49,6 +49,7 @@ export interface Product {
   mandatoryForGroup: EmployeeGroup | null;
   sizeRangeRaw: string | null;
   sizes: ProductSize[];
+  active?: boolean;
 }
 
 export interface OrderItem {
@@ -103,5 +104,34 @@ export interface EmployeeListItem {
   hireDate: string | null;
   employmentStatus: EmploymentStatus;
   resignationDate: string | null;
+  hidden: boolean;
   balanceEur: number;
+}
+
+export interface InventoryRow {
+  productId: string;
+  productName: string;
+  color: string | null;
+  category: ProductCategory;
+  previousCount: number | null;
+  soldSincePrevious: number | null;
+  expectedStock: number | null;
+  lastDifference: number | null;
+}
+
+export interface InventoryOverview {
+  latestSession: {
+    id: string;
+    takenAt: string;
+    createdAt: string;
+    createdBy: { firstName: string | null; lastName: string | null; email: string | null } | null;
+  } | null;
+  rows: InventoryRow[];
+}
+
+export interface InventorySessionListItem {
+  id: string;
+  takenAt: string;
+  createdAt: string;
+  createdBy: { firstName: string | null; lastName: string | null; email: string | null };
 }

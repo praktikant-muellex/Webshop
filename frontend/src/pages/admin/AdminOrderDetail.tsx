@@ -15,11 +15,26 @@ export function AdminOrderDetail() {
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetchAllOrders()
+      .then((all) => {
+        if (cancelled) return;
+        const match = all.find((o) => o.id === id) ?? null;
+        setOrder(match);
+        if (!match) setError("Bestellung nicht gefunden.");
+      })
+      .catch(() => {
+        if (!cancelled) setError("Bestellung konnte nicht geladen werden.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
   const load = () => {
     fetchAllOrders().then((all) => setOrder(all.find((o) => o.id === id) ?? null));
   };
-
-  useEffect(load, [id]);
 
   const advanceStatus = async (status: "ready_for_pickup" | "issued") => {
     if (!id) return;
@@ -48,15 +63,18 @@ export function AdminOrderDetail() {
           ⚠ Rückforderungspflichtig (Austritt innerhalb 3 Monaten).
         </p>
       )}
+      {order.rejectionReason && (
+        <p className="mt-2 text-sm text-red-600">Ablehnungsgrund: {order.rejectionReason}</p>
+      )}
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
       <Card className="mt-4 overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50">
+          <thead className="bg-secondary-500">
             <tr>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Produkt</th>
-              <th className="px-4 py-2.5 text-left font-medium text-slate-500">Größe</th>
-              <th className="px-4 py-2.5 text-right font-medium text-slate-500">Preis</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Produkt</th>
+              <th className="px-4 py-2.5 text-left font-bold text-white">Größe</th>
+              <th className="px-4 py-2.5 text-right font-bold text-white">Preis</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -89,7 +107,7 @@ export function AdminOrderDetail() {
           <Button onClick={() => advanceStatus("ready_for_pickup")}>Als abholbereit markieren</Button>
         )}
         {order.status === "ready_for_pickup" && (
-          <Button onClick={() => advanceStatus("issued")}>Als ausgegeben markieren</Button>
+          <Button onClick={() => advanceStatus("issued")}>Als abgeholt markieren</Button>
         )}
       </div>
     </div>

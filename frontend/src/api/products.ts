@@ -9,6 +9,3 @@ export function fetchProducts(opts: { mandatoryForMe?: boolean; category?: strin
   return apiFetch<Product[]>(`/products${qs ? `?${qs}` : ""}`);
 }
 
-export function fetchProduct(id: string) {
-  return apiFetch<Product>(`/products/${id}`);
-}

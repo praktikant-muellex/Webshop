@@ -37,9 +37,11 @@ export function ProductGroupCard({ name, variants, onOpen }: ProductGroupCardPro
             <span className="text-slate-400"> · {variants.length} Farben</span>
           )}
         </p>
-        <div className="mt-2 flex items-center justify-between">
+        <div className="mt-auto flex items-center justify-between pt-2">
           <span className="font-semibold text-primary-700">{first.priceEur} €</span>
-          <span className="text-sm font-medium text-primary-600">Auswählen →</span>
+          <span className="rounded-md bg-primary-500 px-3 py-1.5 text-sm font-bold text-white">
+            Auswählen →
+          </span>
         </div>
       </div>
     </div>

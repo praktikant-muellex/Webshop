@@ -65,7 +65,7 @@ model User {
   id                String            @id @default(uuid())
   email             String?           @unique
   passwordHash      String?
-  // Employees log in with name + Angestelltennummer instead of email +
+  // Employees log in with name + Personalnummer instead of email +
   // password (admin/supervisor accounts keep email + passwordHash).
   // employeeNumber is intentionally plaintext, not hashed: admins need to
   // see it in the employee list (e.g. to read it out over the phone), so
@@ -81,6 +81,10 @@ model User {
   hireDate          DateTime?         @db.Date
   employmentStatus  EmploymentStatus  @default(active)
   resignationDate   DateTime?         @db.Date
+  // Lets admins remove a resigned employee from the default employee list
+  // without touching the row itself — orders, ledger entries and loaner
+  // records still reference this user, so a hard delete isn't an option.
+  hidden            Boolean           @default(false)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
@@ -89,6 +93,7 @@ model User {
   ledgerEntries         BudgetLedgerEntry[]  @relation("LedgerOwner")
   createdLedgerEntries  BudgetLedgerEntry[]  @relation("LedgerCreator")
   loanerRecords         LoanerRecord[]
+  inventorySessions     InventorySession[]
 
   @@map("users")
 }
@@ -108,8 +113,9 @@ model Product {
   active               Boolean          @default(true)
   createdAt            DateTime         @default(now())
 
-  sizes      ProductSize[]
-  orderItems OrderItem[]
+  sizes          ProductSize[]
+  orderItems     OrderItem[]
+  inventoryCounts InventoryCount[]
 
   // Natural key for idempotent seed upserts.
   @@unique([name, color, modelDesignation], name: "naturalKey")
@@ -192,4 +198,33 @@ model LoanerRecord {
   createdAt        DateTime  @default(now())
 
   @@map("loaner_records")
+}
+
+// A stocktake: one row per physical count of all products, taken on a given
+// date by an admin. Differences are never stored — they are always
+// recomputed from the two most recent sessions plus order data in between,
+// so a later correction to order history is reflected automatically instead
+// of leaving a stale discrepancy number on record.
+model InventorySession {
+  id              String   @id @default(uuid())
+  takenAt         DateTime @default(now()) @db.Date
+  createdByUserId String
+  createdByUser   User     @relation(fields: [createdByUserId], references: [id])
+  createdAt       DateTime @default(now())
+
+  counts InventoryCount[]
+
+  @@map("inventory_sessions")
+}
+
+model InventoryCount {
+  id        String           @id @default(uuid())
+  sessionId String
+  session   InventorySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product          @relation(fields: [productId], references: [id])
+  quantity  Int
+
+  @@unique([sessionId, productId])
+  @@map("inventory_counts")
 }

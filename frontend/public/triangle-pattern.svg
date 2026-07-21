@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+  <defs>
+    <g id="tri">
+      <path d="M0,40 L20,2" />
+      <path d="M20,2 L42,38" />
+      <path d="M42,38 L-4,44" />
+    </g>
+  </defs>
+  <g fill="none" stroke="#71cc98" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <use href="#tri" transform="translate(40,60) rotate(12) scale(1.3)" />
+    <use href="#tri" transform="translate(150,30) rotate(-35) scale(0.5)" />
+    <use href="#tri" transform="translate(235,55) rotate(200) scale(1.0)" />
+    <use href="#tri" transform="translate(300,25) rotate(80) scale(0.55)" />
+    <use href="#tri" transform="translate(55,150) rotate(-70) scale(0.45)" />
+    <use href="#tri" transform="translate(150,130) rotate(-10) scale(0.75)" />
+    <use href="#tri" transform="translate(250,150) rotate(95) scale(1.35)" />
+    <use href="#tri" transform="translate(15,225) rotate(150) scale(0.6)" />
+    <use href="#tri" transform="translate(110,240) rotate(200) scale(1.05)" />
+    <use href="#tri" transform="translate(200,215) rotate(-60) scale(0.6)" />
+    <use href="#tri" transform="translate(285,255) rotate(30) scale(0.85)" />
+    <use href="#tri" transform="translate(55,300) rotate(-120) scale(0.4)" />
+    <use href="#tri" transform="translate(160,295) rotate(140) scale(0.7)" />
+    <use href="#tri" transform="translate(250,300) rotate(50) scale(0.5)" />
+  </g>
+</svg>

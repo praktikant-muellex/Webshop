@@ -36,7 +36,7 @@ export function ProductDetailModal({ variants, onAdd, onClose }: ProductDetailMo
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-xl font-semibold text-primary-700">{variant.name}</h2>
+          <h2 className="text-xl font-semibold text-primary-500">{variant.name}</h2>
           <button
             onClick={onClose}
             aria-label="Schließen"

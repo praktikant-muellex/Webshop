@@ -17,12 +17,12 @@ export function LedgerTable({ entries }: { entries: BudgetLedgerEntry[] }) {
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200">
       <table className="min-w-full divide-y divide-slate-200 text-sm">
-        <thead className="bg-slate-50">
+        <thead className="bg-secondary-500">
           <tr>
-            <th className="px-4 py-2.5 text-left font-medium text-slate-500">Datum</th>
-            <th className="px-4 py-2.5 text-left font-medium text-slate-500">Art</th>
-            <th className="px-4 py-2.5 text-right font-medium text-slate-500">Betrag</th>
-            <th className="px-4 py-2.5 text-left font-medium text-slate-500">Notiz</th>
+            <th className="px-4 py-2.5 text-left font-bold text-white">Datum</th>
+            <th className="px-4 py-2.5 text-left font-bold text-white">Art</th>
+            <th className="px-4 py-2.5 text-right font-bold text-white">Betrag</th>
+            <th className="px-4 py-2.5 text-left font-bold text-white">Notiz</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 bg-white">

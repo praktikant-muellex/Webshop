@@ -5,7 +5,7 @@ const LABELS: Record<OrderStatus, string> = {
   approved: "Freigegeben",
   rejected: "Abgelehnt",
   ready_for_pickup: "Abholbereit",
-  issued: "Ausgegeben",
+  issued: "Abgeholt",
 };
 
 const CLASSES: Record<OrderStatus, string> = {

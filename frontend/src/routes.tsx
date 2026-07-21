@@ -5,6 +5,7 @@ import { EmployeeLayout } from "./components/EmployeeLayout";
 import { AdminLayout } from "./components/AdminLayout";
 import { Login } from "./pages/Login";
 import { Catalog } from "./pages/employee/Catalog";
+import { Grundausstattung } from "./pages/employee/Grundausstattung";
 import { Cart } from "./pages/employee/Cart";
 import { Orders } from "./pages/employee/Orders";
 import { OrderDetail } from "./pages/employee/OrderDetail";
@@ -15,6 +16,8 @@ import { AdminOrders } from "./pages/admin/AdminOrders";
 import { AdminOrderDetail } from "./pages/admin/AdminOrderDetail";
 import { Onboarding } from "./pages/admin/Onboarding";
 import { BudgetGrants } from "./pages/admin/BudgetGrants";
+import { Inventory } from "./pages/admin/Inventory";
+import { ManageProducts } from "./pages/admin/ManageProducts";
 
 function RoleBasedHome() {
   const { user } = useAuth();
@@ -32,6 +35,7 @@ export function AppRoutes() {
         <Route element={<RequireRole roles={["employee"]} />}>
           <Route element={<EmployeeLayout />}>
             <Route path="/catalog" element={<Catalog />} />
+            <Route path="/grundausstattung" element={<Grundausstattung />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/:id" element={<OrderDetail />} />
@@ -45,8 +49,15 @@ export function AppRoutes() {
             <Route path="/admin/employees/:id" element={<EmployeeDetail />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
-            <Route path="/admin/onboarding" element={<Onboarding />} />
-            <Route path="/admin/budget-grants" element={<BudgetGrants />} />
+            <Route path="/admin/inventory" element={<Inventory />} />
+
+            {/* Backend-enforced adminOnly (requireRole("admin")) — a supervisor
+                navigating here directly would otherwise hit a 403 mid-page. */}
+            <Route element={<RequireRole roles={["admin"]} />}>
+              <Route path="/admin/onboarding" element={<Onboarding />} />
+              <Route path="/admin/budget-grants" element={<BudgetGrants />} />
+              <Route path="/admin/products" element={<ManageProducts />} />
+            </Route>
           </Route>
         </Route>
 

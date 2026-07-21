@@ -9,26 +9,31 @@ import { productLabel } from "../../lib/productLabel";
 
 export function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchMyOrders().then(setOrders);
+    fetchMyOrders()
+      .then(setOrders)
+      .catch(() => setError("Bestellungen konnten nicht geladen werden."));
   }, []);
 
   return (
     <div>
       <PageHeading>Meine Bestellungen</PageHeading>
 
-      {orders.length === 0 ? (
+      {error ? (
+        <p className="mt-4 text-sm text-red-600">{error}</p>
+      ) : orders.length === 0 ? (
         <p className="mt-4 text-sm text-slate-500">Noch keine Bestellungen.</p>
       ) : (
         <Card className="mt-4 overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-200 text-sm">
-            <thead className="bg-slate-50">
+            <thead className="bg-secondary-500">
               <tr>
-                <th className="px-4 py-2.5 text-left font-medium text-slate-500">Datum</th>
-                <th className="px-4 py-2.5 text-left font-medium text-slate-500">Positionen</th>
-                <th className="px-4 py-2.5 text-right font-medium text-slate-500">Summe</th>
-                <th className="px-4 py-2.5 text-left font-medium text-slate-500">Status</th>
+                <th className="px-4 py-2.5 text-left font-bold text-white">Datum</th>
+                <th className="px-4 py-2.5 text-left font-bold text-white">Positionen</th>
+                <th className="px-4 py-2.5 text-right font-bold text-white">Summe</th>
+                <th className="px-4 py-2.5 text-left font-bold text-white">Status</th>
                 <th className="px-4 py-2.5" />
               </tr>
             </thead>
@@ -48,7 +53,10 @@ export function Orders() {
                       <OrderStatusBadge status={o.status} />
                     </td>
                     <td className="whitespace-nowrap px-4 py-2.5 text-right">
-                      <Link to={`/orders/${o.id}`} className="text-primary-600 hover:text-primary-700">
+                      <Link
+                        to={`/orders/${o.id}`}
+                        className="inline-block rounded-md border-2 border-secondary-500 bg-white px-3 py-2 text-sm font-semibold text-primary-700 transition-colors hover:bg-secondary-50"
+                      >
                         Details
                       </Link>
                     </td>

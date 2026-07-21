@@ -17,11 +17,22 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 const STORAGE_KEY = "arbeitskleidung-cart";
 
+function loadStoredLines(): CartLine[] {
+  const raw = sessionStorage.getItem(STORAGE_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    // Malformed storage (a crashed tab's partial write, a leftover value
+    // from an older app version) must not white-screen the entire app —
+    // CartProvider sits above every route, including the login page.
+    return [];
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [lines, setLines] = useState<CartLine[]>(() => {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  });
+  const [lines, setLines] = useState<CartLine[]>(loadStoredLines);
 
   useEffect(() => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(lines));

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request } from "express";
 import bcrypt from "bcryptjs";
 import rateLimit from "express-rate-limit";
 import { prisma } from "../db/prisma";
@@ -6,6 +6,19 @@ import { requireAuth } from "../middleware/auth";
 import { ensureBaseGrant } from "../services/budgetLedger";
 
 export const authRouter = Router();
+
+/**
+ * Issues a fresh session ID on login instead of just mutating the existing
+ * session's userId. Without this, a session cookie an attacker managed to
+ * plant in a victim's browser before login (XSS, subdomain cookie tossing)
+ * would still be valid — and now authenticated as the victim — after they
+ * log in through it, since the underlying session ID never changed.
+ */
+function regenerateSession(req: Request): Promise<void> {
+  return new Promise((resolve, reject) => {
+    req.session.regenerate((err) => (err ? reject(err) : resolve()));
+  });
+}
 
 // Login is the one endpoint an attacker can hit without already being
 // authenticated, so it's the one worth throttling against brute force.
@@ -20,7 +33,7 @@ const loginLimiter = rateLimit({
 /** Admin/supervisor login — unchanged, email + password. */
 authRouter.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body ?? {};
-  if (!email || !password) {
+  if (!email || !password || typeof email !== "string" || typeof password !== "string") {
     return res.status(400).json({ error: "E-Mail und Passwort erforderlich." });
   }
 
@@ -38,12 +51,13 @@ authRouter.post("/login", loginLimiter, async (req, res) => {
     return res.status(403).json({ error: "Dieses Konto ist nicht mehr aktiv." });
   }
 
+  await regenerateSession(req);
   req.session.userId = user.id;
   res.json({ id: user.id, email: user.email, role: user.role });
 });
 
 /**
- * Employee login — name + Angestelltennummer instead of email + password.
+ * Employee login — name + Personalnummer instead of email + password.
  * employeeNumber is looked up directly (it's a unique, plaintext staff ID,
  * not a hash — see the schema comment on User.employeeNumber), then
  * firstName/lastName must also match what's on file. Requiring both is
@@ -53,7 +67,7 @@ authRouter.post("/login", loginLimiter, async (req, res) => {
 authRouter.post("/employee-login", loginLimiter, async (req, res) => {
   const { firstName, lastName, employeeNumber } = req.body ?? {};
   if (!firstName || !lastName || !employeeNumber) {
-    return res.status(400).json({ error: "Vorname, Nachname und Angestelltennummer erforderlich." });
+    return res.status(400).json({ error: "Vorname, Nachname und Personalnummer erforderlich." });
   }
 
   const user = await prisma.user.findUnique({ where: { employeeNumber: String(employeeNumber).trim() } });
@@ -69,6 +83,7 @@ authRouter.post("/employee-login", loginLimiter, async (req, res) => {
     return res.status(403).json({ error: "Dieses Konto ist nicht mehr aktiv." });
   }
 
+  await regenerateSession(req);
   req.session.userId = user.id;
   res.json({ id: user.id, firstName: user.firstName, lastName: user.lastName, role: user.role });
 });
