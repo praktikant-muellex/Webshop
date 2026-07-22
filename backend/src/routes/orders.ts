@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../db/prisma";
 import { requireAuth } from "../middleware/auth";
+import { updateOrderStatus, InvalidStatusTransitionError } from "../services/orderApproval";
 
 export const ordersRouter = Router();
 
@@ -100,4 +101,32 @@ ordersRouter.get("/:id", requireAuth, async (req, res) => {
   }
 
   res.json(order);
+});
+
+/**
+ * The employee's own confirmation that they physically picked up the
+ * order — the ready_for_pickup -> issued transition, previously only an
+ * admin action (PATCH /admin/orders/:id/status). Restricted to the order's
+ * owner (not staff) precisely because the point is that the person who
+ * actually took the goods says so themselves; staff can still fall back to
+ * the admin-side action if an employee can't/doesn't do it themselves.
+ */
+ordersRouter.post("/:id/confirm-pickup", requireAuth, async (req, res) => {
+  const order = await prisma.order.findUnique({ where: { id: req.params.id } });
+  if (!order) {
+    return res.status(404).json({ error: "Bestellung nicht gefunden." });
+  }
+  if (order.userId !== req.session.userId!) {
+    return res.status(403).json({ error: "Keine Berechtigung." });
+  }
+
+  try {
+    const updated = await updateOrderStatus(order.id, "issued");
+    res.json(updated);
+  } catch (err) {
+    if (err instanceof InvalidStatusTransitionError) {
+      return res.status(409).json({ error: "Bestellung ist nicht (mehr) abholbereit." });
+    }
+    throw err;
+  }
 });

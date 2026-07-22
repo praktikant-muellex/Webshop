@@ -6,6 +6,7 @@ import { OrderStatusBadge } from "../../components/OrderStatusBadge";
 import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
+import { BackButton } from "../../components/ui/BackButton";
 import { PageHeading } from "../../components/ui/PageHeading";
 import { productLabel } from "../../lib/productLabel";
 import { employeeLabel } from "../../lib/employeeLabel";
@@ -14,6 +15,7 @@ export function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,20 +41,36 @@ export function AdminOrderDetail() {
   const advanceStatus = async (status: "ready_for_pickup" | "issued") => {
     if (!id) return;
     setError(null);
+    setBusy(true);
     try {
       await updateOrderStatus(id, status);
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Statusänderung fehlgeschlagen.");
+    } finally {
+      setBusy(false);
     }
   };
 
-  if (!order) return <p className="text-sm text-slate-500">Lade...</p>;
+  // Only the *initial* load failure should hijack the page like this — once
+  // `order` has loaded successfully at least once, a later error (e.g. a
+  // failed status change) must NOT hide the already-loaded order behind
+  // this branch; that's surfaced inline instead (see the `{error && ...}`
+  // below, right before the item table).
+  if (!order) {
+    return (
+      <div>
+        <BackButton />
+        {error ? <p className="text-sm text-red-600">{error}</p> : <p className="text-sm text-slate-500">Lade...</p>}
+      </div>
+    );
+  }
 
   const total = order.items.reduce((sum, i) => sum + i.unitPriceEur * i.quantity, 0);
 
   return (
     <div>
+      <BackButton />
       <PageHeading>Bestellung von {order.user ? employeeLabel(order.user) : "-"}</PageHeading>
       <div className="mt-2 flex items-center gap-2">
         <span className="text-sm text-slate-500">Status:</span>
@@ -104,10 +122,14 @@ export function AdminOrderDetail() {
 
       <div className="mt-4">
         {order.status === "approved" && (
-          <Button onClick={() => advanceStatus("ready_for_pickup")}>Als abholbereit markieren</Button>
+          <Button onClick={() => advanceStatus("ready_for_pickup")} disabled={busy}>
+            {busy ? "Wird gespeichert..." : "Als abholbereit markieren"}
+          </Button>
         )}
         {order.status === "ready_for_pickup" && (
-          <Button onClick={() => advanceStatus("issued")}>Als abgeholt markieren</Button>
+          <Button onClick={() => advanceStatus("issued")} disabled={busy}>
+            {busy ? "Wird gespeichert..." : "Als abgeholt markieren"}
+          </Button>
         )}
       </div>
     </div>

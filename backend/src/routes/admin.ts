@@ -69,7 +69,9 @@ function normalizeSizeLabel(label: string): string | null {
   if (ALPHA_SIZES.has(upper)) return upper;
   if (/^\d+$/.test(trimmed)) {
     const n = parseInt(trimmed, 10);
-    if (n % 2 === 0 && n >= MIN_NUMERIC_SIZE && n <= MAX_NUMERIC_SIZE) return trimmed;
+    // String(n), not the raw trimmed text — "044" must normalize to the same
+    // "44" as a plain "44" entry, or the two would dedupe as distinct sizes.
+    if (n % 2 === 0 && n >= MIN_NUMERIC_SIZE && n <= MAX_NUMERIC_SIZE) return String(n);
   }
   return null;
 }
@@ -468,7 +470,11 @@ adminRouter.get("/inventory", staffOnly, async (_req, res) => {
 
 adminRouter.post("/inventory", adminOnly, async (req, res) => {
   const { counts, takenAt } = req.body ?? {};
-  if (!Array.isArray(counts) || counts.length === 0) {
+  // Not requiring non-empty here — if every product is currently inactive,
+  // an empty array is the only correct submission (it exactly matches the
+  // active set, checked below). Rejecting it outright would make it
+  // impossible to ever record a stocktake while the catalog is empty.
+  if (!Array.isArray(counts)) {
     return res.status(400).json({ error: "counts (Array) erforderlich." });
   }
 
@@ -488,9 +494,22 @@ adminRouter.post("/inventory", adminOnly, async (req, res) => {
   if (productIds.size !== cleaned.length) {
     return res.status(400).json({ error: "Jedes Produkt darf nur einmal vorkommen." });
   }
-  const existingCount = await prisma.product.count({ where: { id: { in: [...productIds] } } });
-  if (existingCount !== productIds.size) {
-    return res.status(400).json({ error: "Mindestens eine productId ist unbekannt." });
+
+  // Must cover every currently active product, exactly — not just "these
+  // IDs happen to exist". A session that's missing some products (a bug
+  // in a future caller, or a direct API call bypassing the form's own
+  // "every row filled in" check) would silently become the reference point
+  // for the overview's "Letzte Inventur"/"Letzte Differenz" columns, and
+  // every product it left out would show blank for anyone viewing the
+  // overview afterward, with no indication why.
+  const activeProducts = await prisma.product.findMany({ where: { active: true }, select: { id: true } });
+  const activeProductIds = new Set(activeProducts.map((p) => p.id));
+  const missing = [...activeProductIds].filter((id) => !productIds.has(id));
+  const unexpected = [...productIds].filter((id) => !activeProductIds.has(id));
+  if (missing.length > 0 || unexpected.length > 0) {
+    return res.status(400).json({
+      error: `Die Inventur muss genau alle aktiven Produkte umfassen. Fehlend: ${missing.length}, unbekannt/inaktiv: ${unexpected.length}.`,
+    });
   }
 
   let parsedTakenAt: Date | undefined;

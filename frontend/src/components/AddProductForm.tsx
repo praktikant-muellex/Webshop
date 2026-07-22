@@ -21,14 +21,16 @@ const ALPHA_SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL
 const MIN_NUMERIC_SIZE = 30;
 const MAX_NUMERIC_SIZE = 80;
 
-/** Returns the canonical size label (uppercased letter size, or the trimmed number), or null if not a real size. */
+/** Returns the canonical size label (uppercased letter size, or the number without leading zeros), or null if not a real size. */
 function normalizeSize(raw: string): string | null {
   const trimmed = raw.trim();
   const upper = trimmed.toUpperCase();
   if (ALPHA_SIZES.includes(upper)) return upper;
   if (/^\d+$/.test(trimmed)) {
     const n = parseInt(trimmed, 10);
-    if (n % 2 === 0 && n >= MIN_NUMERIC_SIZE && n <= MAX_NUMERIC_SIZE) return trimmed;
+    // String(n), not the raw trimmed text — "044" must normalize to the same
+    // "44" as a plain "44" entry, or the two would dedupe as distinct sizes.
+    if (n % 2 === 0 && n >= MIN_NUMERIC_SIZE && n <= MAX_NUMERIC_SIZE) return String(n);
   }
   return null;
 }

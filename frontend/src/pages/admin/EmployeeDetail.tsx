@@ -7,6 +7,7 @@ import { ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
+import { BackButton } from "../../components/ui/BackButton";
 import { inputClass } from "../../components/ui/formStyles";
 import { PageHeading } from "../../components/ui/PageHeading";
 
@@ -81,13 +82,19 @@ export function EmployeeDetail() {
   };
 
   if (!summary || !employee) {
-    return error ? <p className="text-sm text-red-600">{error}</p> : <p className="text-sm text-slate-500">Lade...</p>;
+    return (
+      <div>
+        <BackButton />
+        {error ? <p className="text-sm text-red-600">{error}</p> : <p className="text-sm text-slate-500">Lade...</p>}
+      </div>
+    );
   }
 
   const alreadyResigned = employee.employmentStatus === "resigned";
 
   return (
     <div>
+      <BackButton />
       <PageHeading>Mitarbeiter-Details</PageHeading>
 
       <Card className="mt-4 inline-block px-6 py-4">

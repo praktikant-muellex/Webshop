@@ -1,4 +1,4 @@
-import { ProductCategory } from "@prisma/client";
+import { Prisma, ProductCategory } from "@prisma/client";
 import { prisma } from "../db/prisma";
 
 /**
@@ -78,5 +78,15 @@ export async function deleteProductPermanently(id: string): Promise<void> {
       "Produkt kann nicht endgültig gelöscht werden: es bestehen noch Bestellungen oder Inventur-Einträge dazu."
     );
   }
-  await prisma.product.delete({ where: { id } });
+  try {
+    await prisma.product.delete({ where: { id } });
+  } catch (err) {
+    // Belt-and-braces, same as the employee hard-delete route: the counts
+    // above cover every FK into this row we know of, but a foreign key
+    // violation here means something still references it that we missed.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
+      throw new ProductHasHistoryError("Produkt kann nicht endgültig gelöscht werden: es bestehen noch verknüpfte Daten.");
+    }
+    throw err;
+  }
 }
