@@ -40,6 +40,9 @@ export function BudgetGrants() {
       <p className="mt-2 max-w-2xl text-sm text-slate-500">
         Läuft normalerweise automatisch als täglicher Job. Hier manuell auslösen (z.B. nach einer
         Korrektur des Eintrittsdatums) oder verifizieren, wer den aktuellen Zyklus schon erhalten hat.
+        Es werden nur Mitarbeiter gelistet, deren nächster 1.-Juli-Stichtag bereits erreicht ist — wer
+        z.B. erst diesen Sommer eingestellt wurde, erscheint hier laut Regel erst zum 1. Juli des
+        Folgejahres.
       </p>
 
       <Button className="mt-4" onClick={handleRun}>
@@ -61,6 +64,13 @@ export function BudgetGrants() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
+            {status.length === 0 && !error && (
+              <tr>
+                <td colSpan={3} className="px-4 py-3 text-sm text-slate-500">
+                  Niemand ist aktuell für den laufenden Zyklus fällig.
+                </td>
+              </tr>
+            )}
             {status.map((s) => (
               <tr key={s.userId} className="hover:bg-slate-50">
                 <td className="px-4 py-2.5 text-slate-700">{employeeLabel(s)}</td>
