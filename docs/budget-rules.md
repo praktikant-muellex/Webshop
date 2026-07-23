@@ -12,15 +12,15 @@ Bei Änderungen des Katalogs zuerst hier, dann im Code (und in `seed/employee-gr
 | Laderfahrer & Anlagenbediener (`laderfahrer_anlagenbediener`) | 500 € | 200 € |
 | Instandhaltung & Hofpersonal (`instandhaltung_hofpersonal`) | 650 € | 330 € |
 
-## Probezeit (Monate 0-3)
+## Probezeit (Monat 0-1)
 
 Neue Mitarbeiter erhalten eine **Probegarnitur** zur vorübergehenden Nutzung (kein Budget-Bezug,
-nur Tracking in `loaner_records`). Diese ist nach Ablauf des 3. Monats vollständig zu retournieren.
+nur Tracking in `loaner_records`). Diese ist nach Ablauf des 1. Monats vollständig zu retournieren.
 
 ## Grundausstattungsbudget (einmalig)
 
-Wird ab Monat 4 (nach erfolgreichem Abschluss der Probezeit) freigeschaltet:
-`freigabe_datum = hire_date + 4 Monate`. Lazy geprüft (z.B. bei Login): falls `heute >= freigabe_datum`
+Wird ab Monat 2 (nach erfolgreichem Abschluss der Probezeit) freigeschaltet:
+`freigabe_datum = hire_date + 2 Monate`. Lazy geprüft (z.B. bei Login): falls `heute >= freigabe_datum`
 und noch kein `base_grant`-Ledger-Eintrag existiert, wird einer mit `amount_eur = base_budget_eur`
 der Gruppe eingefügt.
 

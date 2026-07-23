@@ -206,7 +206,7 @@ adminRouter.post("/employees", adminOnly, async (req, res) => {
     throw err;
   }
 
-  const dueBy = addMonthsClamped(user.hireDate!, 3);
+  const dueBy = addMonthsClamped(user.hireDate!, 1);
   await prisma.loanerRecord.create({
     data: { userId: user.id, issuedAt: user.hireDate!, dueBy },
   });

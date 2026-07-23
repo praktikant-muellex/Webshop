@@ -82,7 +82,7 @@ function toDateOnly(date: Date): Date {
 }
 
 /**
- * Grundausstattungsbudget unlocks 4 months after hire (end of the 3-month
+ * Grundausstattungsbudget unlocks 2 months after hire (end of the 1-month
  * probation period). Lazily checked/materialized — safe to call repeatedly
  * (e.g. on every login) since it's guarded by an existence check.
  */
@@ -94,7 +94,7 @@ export async function ensureBaseGrant(userId: string, referenceDate: Date = new 
   if (!user || !user.employeeGroup || !user.hireDate) return;
   if (user.employmentStatus !== "active") return;
 
-  const eligibleFrom = toDateOnly(addMonthsClamped(user.hireDate, 4));
+  const eligibleFrom = toDateOnly(addMonthsClamped(user.hireDate, 2));
   if (toDateOnly(referenceDate) < eligibleFrom) return;
 
   const existing = await prisma.budgetLedgerEntry.findFirst({
@@ -109,7 +109,7 @@ export async function ensureBaseGrant(userId: string, referenceDate: Date = new 
         entryType: LedgerEntryType.base_grant,
         amountEur: user.employeeGroup.baseBudgetEur,
         effectiveDate: eligibleFrom,
-        note: `Grundausstattungsbudget freigeschaltet (Monat 4 ab Einstellung ${user.hireDate.toISOString().slice(0, 10)}).`,
+        note: `Grundausstattungsbudget freigeschaltet (Monat 2 ab Einstellung ${user.hireDate.toISOString().slice(0, 10)}).`,
       },
     });
   } catch (err) {
