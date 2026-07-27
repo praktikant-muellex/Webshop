@@ -7,6 +7,7 @@ import { RejectOrderModal } from "../../components/RejectOrderModal";
 import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
+import { Spinner } from "../../components/ui/Spinner";
 import { selectClass, labelClass } from "../../components/ui/formStyles";
 import { PageHeading } from "../../components/ui/PageHeading";
 import { productLabel } from "../../lib/productLabel";
@@ -23,6 +24,7 @@ const STATUS_OPTIONS: { value: OrderStatus | ""; label: string }[] = [
 
 export function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<OrderStatus | "">("");
   const [error, setError] = useState<string | null>(null);
   const [rejectTarget, setRejectTarget] = useState<Order | null>(null);
@@ -30,12 +32,14 @@ export function AdminOrders() {
   const [rejectError, setRejectError] = useState<string | null>(null);
 
   const load = () => {
+    setLoading(true);
     fetchAllOrders({ status: status || undefined })
       .then((data) => {
         setOrders(data);
         setError(null);
       })
-      .catch(() => setError("Bestellungen konnten nicht geladen werden."));
+      .catch(() => setError("Bestellungen konnten nicht geladen werden."))
+      .finally(() => setLoading(false));
   };
 
   useEffect(load, [status]);
@@ -99,6 +103,13 @@ export function AdminOrders() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
+            {loading && (
+              <tr>
+                <td colSpan={6}>
+                  <Spinner label="Lade Bestellungen..." />
+                </td>
+              </tr>
+            )}
             {orders.map((o) => {
               const total = o.items.reduce((sum, i) => sum + i.unitPriceEur * i.quantity, 0);
               return (

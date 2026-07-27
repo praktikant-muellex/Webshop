@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { PageHeading } from "../../components/ui/PageHeading";
+import { Spinner } from "../../components/ui/Spinner";
 import { employeeLabel } from "../../lib/employeeLabel";
 
 interface SortOption {
@@ -130,6 +131,7 @@ export function Employees() {
   // would just get a "Keine Berechtigung" error, so hide them entirely.
   const isAdmin = user?.role === "admin";
   const [employees, setEmployees] = useState<EmployeeListItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sort, setSort] = useState<SortOption | null>(null);
   const [openColumn, setOpenColumn] = useState<string | null>(null);
@@ -137,12 +139,14 @@ export function Employees() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const load = () => {
+    setLoading(true);
     fetchEmployees(showHidden)
       .then((data) => {
         setEmployees(data);
         setError(null);
       })
-      .catch(() => setError("Mitarbeiterliste konnte nicht geladen werden."));
+      .catch(() => setError("Mitarbeiterliste konnte nicht geladen werden."))
+      .finally(() => setLoading(false));
   };
 
   useEffect(load, [showHidden]);
@@ -288,6 +292,13 @@ export function Employees() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
+            {loading && (
+              <tr>
+                <td colSpan={8}>
+                  <Spinner label="Lade Mitarbeiter..." />
+                </td>
+              </tr>
+            )}
             {displayedEmployees.map((e) => (
               <tr key={e.id} className={`hover:bg-slate-50 ${e.hidden ? "opacity-60" : ""}`}>
                 <td className="px-4 py-2.5 text-slate-700">{employeeLabel(e)}</td>

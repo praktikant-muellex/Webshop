@@ -4,6 +4,7 @@ import { Product } from "../../api/types";
 import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
+import { Spinner } from "../../components/ui/Spinner";
 import { selectClass, labelClass } from "../../components/ui/formStyles";
 import { PageHeading } from "../../components/ui/PageHeading";
 import { AddProductForm } from "../../components/AddProductForm";
@@ -27,17 +28,20 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export function ManageProducts() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
   const load = () => {
+    setLoading(true);
     fetchAllProductsAdmin(category || undefined)
       .then((data) => {
         setProducts(data);
         setError(null);
       })
-      .catch(() => setError("Produkte konnten nicht geladen werden."));
+      .catch(() => setError("Produkte konnten nicht geladen werden."))
+      .finally(() => setLoading(false));
   };
 
   useEffect(load, [category]);
@@ -114,6 +118,13 @@ export function ManageProducts() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
+            {loading && (
+              <tr>
+                <td colSpan={7}>
+                  <Spinner label="Lade Produkte..." />
+                </td>
+              </tr>
+            )}
             {products.map((p) => (
               <tr key={p.id} className="hover:bg-slate-50">
                 <td className="px-4 py-2.5">

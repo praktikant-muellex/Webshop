@@ -5,6 +5,7 @@ import { ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
+import { Spinner } from "../../components/ui/Spinner";
 import { inputClass, labelClass } from "../../components/ui/formStyles";
 import { PageHeading } from "../../components/ui/PageHeading";
 
@@ -90,7 +91,16 @@ export function Inventory() {
 
   useEffect(load, []);
 
-  if (!overview) return <p className="text-sm text-slate-500">Lade...</p>;
+  if (!overview) {
+    return (
+      <div>
+        <PageHeading>Inventur</PageHeading>
+        <Card className="mt-4">
+          <Spinner label="Lade Inventur..." />
+        </Card>
+      </div>
+    );
+  }
 
   const handleSubmit = async () => {
     setError(null);
@@ -146,7 +156,7 @@ export function Inventory() {
       {showHistory && (
         <Card className="mb-6 overflow-x-auto">
           {sessions === null ? (
-            <p className="p-4 text-sm text-slate-500">Lade...</p>
+            <Spinner label="Lade frühere Inventuren..." />
           ) : sessions.length === 0 ? (
             <p className="p-4 text-sm text-slate-500">Noch keine Inventuren erfasst.</p>
           ) : (

@@ -4,20 +4,24 @@ import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { PageHeading } from "../../components/ui/PageHeading";
+import { Spinner } from "../../components/ui/Spinner";
 import { employeeLabel } from "../../lib/employeeLabel";
 
 export function BudgetGrants() {
   const [status, setStatus] = useState<GrantStatusEntry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = () => {
+    setLoading(true);
     fetchGrantStatus()
       .then((data) => {
         setStatus(data);
         setError(null);
       })
-      .catch(() => setError("Status konnte nicht geladen werden."));
+      .catch(() => setError("Status konnte nicht geladen werden."))
+      .finally(() => setLoading(false));
   };
 
   useEffect(load, []);
@@ -64,7 +68,14 @@ export function BudgetGrants() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {status.length === 0 && !error && (
+            {loading && (
+              <tr>
+                <td colSpan={3}>
+                  <Spinner label="Lade Budget-Status..." />
+                </td>
+              </tr>
+            )}
+            {!loading && status.length === 0 && !error && (
               <tr>
                 <td colSpan={3} className="px-4 py-3 text-sm text-slate-500">
                   Niemand ist aktuell für den laufenden Zyklus fällig.
