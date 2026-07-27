@@ -50,6 +50,27 @@ npm run grant:run
 
 Oder über die Admin-Oberfläche (`/admin/budget-grants`, Button "Jetzt ausführen").
 
+## Tests
+
+Automatisierte Tests fürs Backend (Budget-/Guthaben-Rechnungen, Bestell-Freigabe/-Ablehnung,
+Inventur-Differenzen) laufen gegen eine eigene, separate Postgres-Datenbank — niemals gegen die
+Entwicklungs- oder Produktions-DB, da jeder Testlauf alle Tabellen leert.
+
+```bash
+cd backend
+cp .env.example .env.test           # DATABASE_URL auf eine ANDERE Datenbank als .env zeigen lassen,
+                                     # z.B. .../arbeitskleidung_test statt .../arbeitskleidung
+npx prisma migrate deploy           # einmalig: Schema in die Test-DB einspielen (mit DATABASE_URL aus .env.test)
+npm test                            # einmaliger Lauf
+npm run test:watch                  # bei Bedarf im Watch-Modus
+```
+
+Deckt bisher ab: `dateMath.ts` (Monats-/Tages-Rechnung), `budgetLedger.ts` (Grundausstattungs-/
+Folgebudget-Freischaltung, Guthaben darf nie negativ werden), `orderApproval.ts` (Freigabe/Ablehnung,
+Statuswechsel, Rückforderungs-Markierung) und die zwei zuvor real aufgetretenen Inventur-Bugs
+(Differenz-Berechnung bei Stichtagen am selben Tag). Noch nicht abgedeckt: die HTTP-Routen selbst
+(Auth-Middleware, Eingabevalidierung) und das Frontend.
+
 ## Deployment
 
 - **Backend**: Render, siehe `render.yaml` (Web Service + Cron Job). `FRONTEND_ORIGIN` env var nach dem

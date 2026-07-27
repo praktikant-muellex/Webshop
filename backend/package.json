@@ -12,7 +12,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
-    "grant:run": "tsx src/jobs/annualGrant.ts"
+    "grant:run": "tsx src/jobs/annualGrant.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
@@ -40,7 +42,8 @@
     "@types/pg": "^8.11.0",
     "prisma": "^5.20.0",
     "tsx": "^4.19.0",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^4.1.10"
   },
   "allowScripts": {
     "@prisma/client@5.22.0": true,
