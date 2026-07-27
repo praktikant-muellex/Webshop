@@ -52,8 +52,10 @@ Oder über die Admin-Oberfläche (`/admin/budget-grants`, Button "Jetzt ausführ
 
 ## Deployment
 
-- **Backend + Datenbank**: Render, siehe `render.yaml` (Web Service + Cron Job + Managed
-  Postgres). `FRONTEND_ORIGIN` env var nach dem Netlify-Deploy auf die tatsächliche Netlify-URL setzen
-  (CORS).
+- **Backend**: Render, siehe `render.yaml` (Web Service + Cron Job). `FRONTEND_ORIGIN` env var nach dem
+  Netlify-Deploy auf die tatsächliche Netlify-URL setzen (CORS).
+- **Datenbank**: Neon Postgres (dauerhaft kostenloser Tier, kein 30-Tage-Ablauf wie bei Render's eigener
+  Managed Postgres). `DATABASE_URL` manuell in Render's Environment-Einstellungen auf die Neon-Connection-
+  String setzen.
 - **Frontend**: Netlify, siehe `frontend/netlify.toml`. `VITE_API_URL` als Netlify-Umgebungsvariable auf
   die Render-Backend-URL setzen.
