@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/Button";
 import { inputClass, labelClass } from "./ui/formStyles";
 
+const MAX_REASON_LENGTH = 500;
+
 interface RejectOrderModalProps {
   employeeLabel: string;
   onConfirm: (reason: string) => void;
@@ -23,12 +25,17 @@ export function RejectOrderModal({ employeeLabel, onConfirm, onClose, submitting
   }, [onClose]);
 
   const handleSubmit = () => {
-    if (!reason.trim()) {
+    const trimmed = reason.trim();
+    if (!trimmed) {
       setValidationError("Ablehnungsgrund darf nicht leer sein.");
       return;
     }
+    if (trimmed.length > MAX_REASON_LENGTH) {
+      setValidationError(`Ablehnungsgrund darf maximal ${MAX_REASON_LENGTH} Zeichen lang sein.`);
+      return;
+    }
     setValidationError(null);
-    onConfirm(reason.trim());
+    onConfirm(trimmed);
   };
 
   return (
@@ -54,8 +61,12 @@ export function RejectOrderModal({ employeeLabel, onConfirm, onClose, submitting
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="z.B. Größe aktuell nicht lieferbar"
+            maxLength={MAX_REASON_LENGTH}
             autoFocus
           />
+          <p className="mt-1 text-right text-xs text-slate-400">
+            {reason.length}/{MAX_REASON_LENGTH}
+          </p>
         </div>
 
         {(validationError || error) && <p className="mt-2 text-sm text-red-600">{validationError ?? error}</p>}

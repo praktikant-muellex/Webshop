@@ -421,10 +421,15 @@ adminRouter.post("/orders/:id/approve", staffOnly, async (req, res) => {
   }
 });
 
+const MAX_REJECTION_REASON_LENGTH = 500;
+
 adminRouter.post("/orders/:id/reject", staffOnly, async (req, res) => {
   const { reason } = req.body ?? {};
   if (!reason || typeof reason !== "string" || !reason.trim()) {
     return res.status(400).json({ error: "reason erforderlich." });
+  }
+  if (reason.trim().length > MAX_REJECTION_REASON_LENGTH) {
+    return res.status(400).json({ error: `reason darf maximal ${MAX_REJECTION_REASON_LENGTH} Zeichen lang sein.` });
   }
   try {
     const order = await rejectOrder(req.params.id, req.session.userId!, reason);
