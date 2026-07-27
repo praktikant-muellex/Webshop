@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { fetchAllOrders, approveOrder, rejectOrder } from "../../api/admin";
 import { Order, OrderStatus } from "../../api/types";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
+import { RejectOrderModal } from "../../components/RejectOrderModal";
 import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -24,6 +25,9 @@ export function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState<OrderStatus | "">("");
   const [error, setError] = useState<string | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<Order | null>(null);
+  const [rejecting, setRejecting] = useState(false);
+  const [rejectError, setRejectError] = useState<string | null>(null);
 
   const load = () => {
     fetchAllOrders({ status: status || undefined })
@@ -46,19 +50,18 @@ export function AdminOrders() {
     }
   };
 
-  const handleReject = async (id: string) => {
-    const reason = window.prompt("Ablehnungsgrund:");
-    if (reason === null) return; // cancelled
-    if (!reason.trim()) {
-      setError("Ablehnungsgrund darf nicht leer sein.");
-      return;
-    }
-    setError(null);
+  const confirmReject = async (reason: string) => {
+    if (!rejectTarget) return;
+    setRejecting(true);
+    setRejectError(null);
     try {
-      await rejectOrder(id, reason);
+      await rejectOrder(rejectTarget.id, reason);
+      setRejectTarget(null);
       load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Ablehnung fehlgeschlagen.");
+      setRejectError(err instanceof ApiError ? err.message : "Ablehnung fehlgeschlagen.");
+    } finally {
+      setRejecting(false);
     }
   };
 
@@ -131,7 +134,14 @@ export function AdminOrders() {
                           <Button variant="secondary" className="px-2.5 py-1" onClick={() => handleApprove(o.id)}>
                             Freigeben
                           </Button>
-                          <Button variant="danger" className="px-2.5 py-1" onClick={() => handleReject(o.id)}>
+                          <Button
+                            variant="danger"
+                            className="px-2.5 py-1"
+                            onClick={() => {
+                              setRejectError(null);
+                              setRejectTarget(o);
+                            }}
+                          >
                             Ablehnen
                           </Button>
                         </>
@@ -144,6 +154,16 @@ export function AdminOrders() {
           </tbody>
         </table>
       </Card>
+
+      {rejectTarget && (
+        <RejectOrderModal
+          employeeLabel={rejectTarget.user ? employeeLabel(rejectTarget.user) : "-"}
+          submitting={rejecting}
+          error={rejectError}
+          onConfirm={confirmReject}
+          onClose={() => setRejectTarget(null)}
+        />
+      )}
     </div>
   );
 }
