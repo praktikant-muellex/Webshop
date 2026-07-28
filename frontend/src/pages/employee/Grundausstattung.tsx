@@ -36,13 +36,14 @@ export function Grundausstattung() {
           <img
             src="/grundausstattung/fahrer-beifahrer.png"
             alt="Grundausstattung Beifahrer"
+            loading="lazy"
             className="w-full"
           />
         </Card>
 
         {IMAGE_GROUPS.map((group) => (
           <Card key={group.title} className="overflow-hidden">
-            <img src={group.imageUrl} alt={group.title} className="w-full" />
+            <img src={group.imageUrl} alt={group.title} loading="lazy" className="w-full" />
           </Card>
         ))}
       </div>

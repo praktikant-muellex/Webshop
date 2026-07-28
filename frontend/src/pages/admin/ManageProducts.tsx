@@ -129,7 +129,7 @@ export function ManageProducts() {
               <tr key={p.id} className="hover:bg-slate-50">
                 <td className="px-4 py-2.5">
                   {p.imageUrl ? (
-                    <img src={p.imageUrl} alt={p.name} className="h-10 w-10 rounded object-contain" />
+                    <img src={p.imageUrl} alt={p.name} loading="lazy" className="h-10 w-10 rounded object-contain" />
                   ) : (
                     <span className="text-xs text-slate-400">-</span>
                   )}

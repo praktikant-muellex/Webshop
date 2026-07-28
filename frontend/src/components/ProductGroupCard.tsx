@@ -19,7 +19,7 @@ export function ProductGroupCard({ name, variants, onOpen }: ProductGroupCardPro
     >
       <div className="flex h-72 items-center justify-center p-2">
         {first.imageUrl ? (
-          <img src={first.imageUrl} alt={name} className="h-full w-full object-contain" />
+          <img src={first.imageUrl} alt={name} loading="lazy" className="h-full w-full object-contain" />
         ) : (
           <span className="text-xs text-slate-400">Kein Bild</span>
         )}

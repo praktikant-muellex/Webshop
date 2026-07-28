@@ -106,6 +106,7 @@ export function AdminOrderDetail() {
                       <img
                         src={i.product.imageUrl}
                         alt={i.product.name}
+                        loading="lazy"
                         className="h-10 w-10 rounded object-contain"
                       />
                     )}
