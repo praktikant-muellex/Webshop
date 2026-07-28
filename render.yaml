@@ -5,7 +5,12 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install --include=dev && npm run prisma:generate && npm run build
-    startCommand: npm run prisma:deploy && npm start
+    # Migrations only need to run once per actual deploy, not on every cold
+    # start after the free-tier service spins down from inactivity —
+    # preDeployCommand runs once before the new version goes live; keeping
+    # it out of startCommand shaves that extra DB round-trip off every wake-up.
+    preDeployCommand: npm run prisma:deploy
+    startCommand: npm start
     envVars:
       # Was fromDatabase (Render's own free Postgres, arbeitskleidung-db) —
       # that plan auto-deletes 30 days after creation. Migrated to a Neon
