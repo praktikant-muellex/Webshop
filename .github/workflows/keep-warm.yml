@@ -16,6 +16,13 @@ on:
     - cron: "*/10 4-16 * * 1-5"
   workflow_dispatch: {}
 
+# This job only ever does an unauthenticated GET against a public endpoint —
+# it has no legitimate need for the default GITHUB_TOKEN's repo-write access.
+# Declaring that explicitly means a future edit to this file that adds a step
+# needing some permission has to opt into it on purpose, instead of silently
+# inheriting whatever broad default the repo happens to have.
+permissions: {}
+
 jobs:
   ping:
     runs-on: ubuntu-latest
