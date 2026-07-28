@@ -1,0 +1,24 @@
+name: Keep backend warm
+
+# Render's free web-service plan spins the backend down after 15 minutes
+# without a request, and the next request then pays a ~30-60s cold-start
+# cost. Pinging it on a schedule during expected usage hours avoids that
+# without ever letting the service run 24/7 (which would eat Render's
+# 750 free instance-hours/month almost entirely on its own).
+#
+# Cron times are always UTC and GitHub Actions has no timezone/DST concept,
+# so 4-16 (UTC) is a fixed window deliberately wide enough to cover
+# 6:00-17:00 Austrian local time across both CET (UTC+1) and CEST (UTC+2).
+# Weekdays only. Works out to ~13h x ~21.7 weekdays/month =~ 280h/month,
+# well under the 750h free cap even before counting real user traffic.
+on:
+  schedule:
+    - cron: "*/10 4-16 * * 1-5"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: curl -sf "${{ secrets.RENDER_BACKEND_URL }}/health"
