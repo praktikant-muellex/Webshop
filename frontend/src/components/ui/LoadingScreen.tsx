@@ -20,7 +20,7 @@ export function LoadingScreen() {
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-secondary-200 border-t-secondary-600" />
       <p className="mt-4 max-w-xs text-sm text-slate-500">
         {slow
-          ? "Der Server war eine Weile inaktiv und startet gerade neu – das kann bis zu einer Minute dauern."
+          ? "Der Server war eine Weile inaktiv und startet gerade neu – dies kann etwas dauern."
           : "Lade..."}
       </p>
     </div>
