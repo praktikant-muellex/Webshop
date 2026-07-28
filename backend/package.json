@@ -40,7 +40,7 @@
     "@types/node": "^20.14.0",
     "@types/pdfkit": "^0.17.6",
     "@types/pg": "^8.11.0",
-    "prisma": "^5.20.0",
+    "prisma": "^7.9.1",
     "tsx": "^4.19.0",
     "typescript": "5.9.3",
     "vitest": "^4.1.10"
