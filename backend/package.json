@@ -42,7 +42,7 @@
     "@types/pg": "^8.11.0",
     "prisma": "^5.20.0",
     "tsx": "^4.19.0",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "vitest": "^4.1.10"
   },
   "allowScripts": {
