@@ -19,3 +19,14 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Internal-only app, never legitimately embedded in an iframe anywhere —
+# blocks clickjacking (a malicious page framing this site invisibly to
+# trick a logged-in admin/employee into clicking a real button underneath
+# a fake one). X-Frame-Options for older browsers, frame-ancestors (CSP)
+# is the modern equivalent that takes precedence where supported.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "frame-ancestors 'none'"
