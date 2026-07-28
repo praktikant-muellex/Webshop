@@ -163,7 +163,7 @@ export function AddProductForm({ onCreated }: { onCreated: () => void }) {
               <ImageDropzone value={v.imageDataUrl} onChange={(dataUrl) => updateVariant(v.key, { imageDataUrl: dataUrl })} />
               <input
                 type="text"
-                className={`${inputClass} mt-2 w-32 text-sm`}
+                className={`${inputClass} mt-2 w-32`}
                 placeholder={variants.length > 1 ? "Farbname" : "Farbe (optional)"}
                 value={v.color}
                 onChange={(e) => updateVariant(v.key, { color: e.target.value })}
