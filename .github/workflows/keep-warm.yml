@@ -20,5 +20,10 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
+      # Requires RENDER_BACKEND_URL under Settings -> Secrets and variables
+      # -> Actions -> Repository secrets (e.g. https://arbeitskleidung-backend.onrender.com,
+      # no trailing slash). If it's added under an Environment instead, this
+      # job can't see it — curl then silently gets an empty URL and fails
+      # with exit code 3, since this job doesn't declare an `environment:`.
       - name: Ping backend health endpoint
         run: curl -sf "${{ secrets.RENDER_BACKEND_URL }}/health"
