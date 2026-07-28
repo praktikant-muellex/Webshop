@@ -5,6 +5,11 @@ on:
     - cron: "0 3 * * *"
   workflow_dispatch: {}
 
+# This job only ever does an authenticated POST against a fixed backend
+# endpoint — it has no legitimate need for the default GITHUB_TOKEN's
+# repo-write access. See the same reasoning in keep-warm.yml.
+permissions: {}
+
 jobs:
   trigger:
     runs-on: ubuntu-latest

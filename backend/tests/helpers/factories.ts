@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { prisma } from "../../src/db/prisma";
 import { EmploymentStatus, OrderStatus } from "@prisma/client";
 
@@ -27,7 +28,7 @@ export async function createEmployee(
       role: "employee",
       firstName: overrides.firstName ?? "Test",
       lastName: overrides.lastName ?? "Mitarbeiter",
-      employeeNumber: overrides.employeeNumber ?? `t-${Math.random().toString(36).slice(2, 8)}`,
+      employeeNumber: overrides.employeeNumber ?? `t-${randomUUID().slice(0, 8)}`,
       employeeGroupId,
       hireDate: overrides.hireDate ?? new Date(Date.UTC(2020, 0, 15)),
       employmentStatus: overrides.employmentStatus ?? "active",

@@ -63,15 +63,18 @@ export function createApp() {
       cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        // Render (backend) and Netlify (frontend) are different sites, not
-        // just different subdomains of one shared domain — every API call
-        // from the SPA is a cross-site `fetch`, and SameSite=Lax cookies are
-        // only ever attached to top-level navigations, never cross-site
-        // fetch/XHR. With "lax" here, the session cookie would be set on
-        // login but never sent back on the next request in production,
-        // making auth silently fail right after logging in. "None" requires
-        // `secure: true`, which is already conditioned on NODE_ENV above.
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        // Used to need "none" in production: Render (backend) and Netlify
+        // (frontend) were different sites, and every API call from the SPA
+        // was a cross-site fetch that a Lax cookie is never attached to.
+        // Since frontend/netlify.toml started proxying /api/* through
+        // Netlify itself (see that file's comment — originally added for
+        // Safari's cross-site cookie blocking), the browser only ever calls
+        // this same origin, making the request same-site again. "Lax" both
+        // closes off the CSRF exposure "None" carries (a cookie marked
+        // None is sent on cross-site requests from anywhere, which is
+        // exactly what a forged request from another page relies on) and
+        // works identically to how local dev already behaved.
+        sameSite: "lax",
         maxAge: 1000 * 60 * 60 * 24 * 7,
       },
     })
