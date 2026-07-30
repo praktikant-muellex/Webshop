@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { EmploymentStatus, OrderStatus, Prisma, ProductCategory } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import { requireRole } from "../middleware/auth";
+import { isForeignKeyViolation } from "../services/prismaErrors";
 import {
   getBalanceEur,
   getLedger,
@@ -351,7 +352,7 @@ adminRouter.delete("/employees/:id", adminOnly, async (req, res) => {
     // of, but a foreign key violation here means something still references
     // it that we missed — fail loud with a clear message rather than a raw
     // Prisma error.
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
+    if (isForeignKeyViolation(err)) {
       return res.status(409).json({ error: "Mitarbeiter kann nicht endgültig gelöscht werden: es bestehen noch verknüpfte Daten." });
     }
     throw err;

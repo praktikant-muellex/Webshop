@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchEmployees, setEmployeeHidden, deleteEmployeePermanently } from "../../api/admin";
 import { EmployeeListItem } from "../../api/types";
 import { ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import { useLoadableList } from "../../hooks/useLoadableList";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { PageHeading } from "../../components/ui/PageHeading";
@@ -130,26 +131,19 @@ export function Employees() {
   // endpoints (backend/src/routes/admin.ts) — a supervisor clicking these
   // would just get a "Keine Berechtigung" error, so hide them entirely.
   const isAdmin = user?.role === "admin";
-  const [employees, setEmployees] = useState<EmployeeListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [sort, setSort] = useState<SortOption | null>(null);
   const [openColumn, setOpenColumn] = useState<string | null>(null);
   const [showHidden, setShowHidden] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const load = () => {
-    setLoading(true);
-    fetchEmployees(showHidden)
-      .then((data) => {
-        setEmployees(data);
-        setError(null);
-      })
-      .catch(() => setError("Mitarbeiterliste konnte nicht geladen werden."))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(load, [showHidden]);
+  const fetcher = useCallback(() => fetchEmployees(showHidden), [showHidden]);
+  const {
+    data: employees,
+    loading,
+    error,
+    setError,
+    reload: load,
+  } = useLoadableList(fetcher, "Mitarbeiterliste konnte nicht geladen werden.");
 
   const handleToggleHidden = async (employee: EmployeeListItem) => {
     const nextHidden = !employee.hidden;

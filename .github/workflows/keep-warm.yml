@@ -30,7 +30,15 @@ jobs:
       # Requires RENDER_BACKEND_URL under Settings -> Secrets and variables
       # -> Actions -> Repository secrets (e.g. https://arbeitskleidung-backend.onrender.com,
       # no trailing slash). If it's added under an Environment instead, this
-      # job can't see it — curl then silently gets an empty URL and fails
-      # with exit code 3, since this job doesn't declare an `environment:`.
+      # job can't see it — curl would then silently get an empty URL and
+      # fail with the unhelpful "exit code 3", since this job doesn't
+      # declare an `environment:`. The check below turns that into an
+      # explicit, actionable annotation instead.
+      - name: Check RENDER_BACKEND_URL is set
+        run: |
+          if [ -z "${{ secrets.RENDER_BACKEND_URL }}" ]; then
+            echo "::error::RENDER_BACKEND_URL secret is missing or scoped to an Environment (needs to be a Repository secret)."
+            exit 1
+          fi
       - name: Ping backend health endpoint
         run: curl -sf "${{ secrets.RENDER_BACKEND_URL }}/health"

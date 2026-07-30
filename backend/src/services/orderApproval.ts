@@ -146,7 +146,10 @@ export async function updateOrderStatus(orderId: string, status: "ready_for_pick
     );
   }
 
-  return prisma.order.findUniqueOrThrow({ where: { id: orderId } });
+  return prisma.order.findUniqueOrThrow({
+    where: { id: orderId },
+    include: { items: { include: { product: true } } },
+  });
 }
 
 /**

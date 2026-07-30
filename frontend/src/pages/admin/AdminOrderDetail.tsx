@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { fetchAllOrders, updateOrderStatus } from "../../api/admin";
 import { Order } from "../../api/types";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
+import { RejectionReasonBanner } from "../../components/RejectionReasonBanner";
 import { ApiError } from "../../api/client";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -81,11 +82,7 @@ export function AdminOrderDetail() {
           ⚠ Rückforderungspflichtig (Austritt innerhalb 3 Monaten).
         </p>
       )}
-      {order.rejectionReason && (
-        <div className="mt-2 inline-block w-fit rounded-md border-2 border-red-500 bg-red-50 px-3 py-2">
-          <p className="text-sm font-bold text-red-700">Ablehnungsgrund: {order.rejectionReason}</p>
-        </div>
-      )}
+      {order.rejectionReason && <RejectionReasonBanner reason={order.rejectionReason} />}
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
       <Card className="mt-4 overflow-x-auto">

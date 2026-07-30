@@ -4,6 +4,7 @@ import { fetchOrder, confirmPickup } from "../../api/orders";
 import { Order } from "../../api/types";
 import { ApiError } from "../../api/client";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
+import { RejectionReasonBanner } from "../../components/RejectionReasonBanner";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { BackButton } from "../../components/ui/BackButton";
@@ -39,8 +40,7 @@ export function OrderDetail() {
     setError(null);
     setConfirming(true);
     try {
-      await confirmPickup(id);
-      const updated = await fetchOrder(id);
+      const updated = await confirmPickup(id);
       setOrder(updated);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Bestätigung fehlgeschlagen.");
@@ -70,11 +70,7 @@ export function OrderDetail() {
         <span className="text-sm text-slate-500">Status:</span>
         <OrderStatusBadge status={order.status} />
       </div>
-      {order.rejectionReason && (
-        <div className="mt-2 inline-block w-fit rounded-md border-2 border-red-500 bg-red-50 px-3 py-2">
-          <p className="text-sm font-bold text-red-700">Ablehnungsgrund: {order.rejectionReason}</p>
-        </div>
-      )}
+      {order.rejectionReason && <RejectionReasonBanner reason={order.rejectionReason} />}
 
       {order.status === "ready_for_pickup" && (
         <div className="mt-3">

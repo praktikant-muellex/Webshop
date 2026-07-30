@@ -1,14 +1,5 @@
 import { apiFetch } from "./client";
-import { Order, OrderStatus } from "./types";
-
-// The backend's confirm-pickup response has no items[].product join (see
-// api/admin.ts's OrderMutationResult for the same reasoning) — callers
-// refetch the full order via fetchOrder() afterward rather than trusting
-// this narrower shape.
-interface OrderMutationResult {
-  id: string;
-  status: OrderStatus;
-}
+import { Order } from "./types";
 
 export interface OrderItemInput {
   productId: string;
@@ -32,5 +23,5 @@ export function fetchOrder(id: string) {
 }
 
 export function confirmPickup(id: string) {
-  return apiFetch<OrderMutationResult>(`/orders/${id}/confirm-pickup`, { method: "POST" });
+  return apiFetch<Order>(`/orders/${id}/confirm-pickup`, { method: "POST" });
 }

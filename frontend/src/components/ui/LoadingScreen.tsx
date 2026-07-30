@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { SpinnerRing } from "./Spinner";
 
 /**
  * Render's free-tier backend spins down after inactivity, so the very first
@@ -17,7 +18,7 @@ export function LoadingScreen() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
       <img src="/logo-full.png" alt="müllex" className="mb-6 h-14 w-auto" />
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-secondary-200 border-t-secondary-600" />
+      <SpinnerRing size="lg" />
       <p className="mt-4 max-w-xs text-sm text-slate-500">
         {slow
           ? "Der Server war eine Weile inaktiv und startet gerade neu – dies kann etwas dauern."

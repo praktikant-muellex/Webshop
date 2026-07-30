@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchAllOrders, approveOrder, rejectOrder } from "../../api/admin";
 import { Order, OrderStatus } from "../../api/types";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
 import { RejectOrderModal } from "../../components/RejectOrderModal";
 import { ApiError } from "../../api/client";
+import { useLoadableList } from "../../hooks/useLoadableList";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Spinner } from "../../components/ui/Spinner";
@@ -23,26 +24,19 @@ const STATUS_OPTIONS: { value: OrderStatus | ""; label: string }[] = [
 ];
 
 export function AdminOrders() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<OrderStatus | "">("");
-  const [error, setError] = useState<string | null>(null);
   const [rejectTarget, setRejectTarget] = useState<Order | null>(null);
   const [rejecting, setRejecting] = useState(false);
   const [rejectError, setRejectError] = useState<string | null>(null);
 
-  const load = () => {
-    setLoading(true);
-    fetchAllOrders({ status: status || undefined })
-      .then((data) => {
-        setOrders(data);
-        setError(null);
-      })
-      .catch(() => setError("Bestellungen konnten nicht geladen werden."))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(load, [status]);
+  const fetcher = useCallback(() => fetchAllOrders({ status: status || undefined }), [status]);
+  const {
+    data: orders,
+    loading,
+    error,
+    setError,
+    reload: load,
+  } = useLoadableList(fetcher, "Bestellungen konnten nicht geladen werden.");
 
   const handleApprove = async (id: string) => {
     setError(null);

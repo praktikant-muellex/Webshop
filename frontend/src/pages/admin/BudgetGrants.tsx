@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { fetchGrantStatus, runAnnualGrant, GrantStatusEntry } from "../../api/admin";
+import { useCallback, useState } from "react";
+import { fetchGrantStatus, runAnnualGrant } from "../../api/admin";
 import { ApiError } from "../../api/client";
+import { useLoadableList } from "../../hooks/useLoadableList";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { PageHeading } from "../../components/ui/PageHeading";
@@ -8,23 +9,16 @@ import { Spinner } from "../../components/ui/Spinner";
 import { employeeLabel } from "../../lib/employeeLabel";
 
 export function BudgetGrants() {
-  const [status, setStatus] = useState<GrantStatusEntry[]>([]);
-  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = () => {
-    setLoading(true);
-    fetchGrantStatus()
-      .then((data) => {
-        setStatus(data);
-        setError(null);
-      })
-      .catch(() => setError("Status konnte nicht geladen werden."))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(load, []);
+  const fetcher = useCallback(() => fetchGrantStatus(), []);
+  const {
+    data: status,
+    loading,
+    error,
+    setError,
+    reload: load,
+  } = useLoadableList(fetcher, "Status konnte nicht geladen werden.");
 
   const handleRun = async () => {
     setError(null);

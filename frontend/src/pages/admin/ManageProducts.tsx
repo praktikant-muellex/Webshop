@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { fetchAllProductsAdmin, setProductActive, deleteProductPermanently } from "../../api/adminProducts";
 import { Product } from "../../api/types";
 import { ApiError } from "../../api/client";
+import { useLoadableList } from "../../hooks/useLoadableList";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Spinner } from "../../components/ui/Spinner";
@@ -27,24 +28,17 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export function ManageProducts() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const load = () => {
-    setLoading(true);
-    fetchAllProductsAdmin(category || undefined)
-      .then((data) => {
-        setProducts(data);
-        setError(null);
-      })
-      .catch(() => setError("Produkte konnten nicht geladen werden."))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(load, [category]);
+  const fetcher = useCallback(() => fetchAllProductsAdmin(category || undefined), [category]);
+  const {
+    data: products,
+    loading,
+    error,
+    setError,
+    reload: load,
+  } = useLoadableList(fetcher, "Produkte konnten nicht geladen werden.");
 
   const handleToggleActive = async (product: Product) => {
     const nextActive = !product.active;
