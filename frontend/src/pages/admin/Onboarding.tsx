@@ -30,11 +30,14 @@ export function Onboarding() {
 
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (submitting) return; // already in flight — ignore a second click/tap
     setError(null);
     setMessage(null);
+    setSubmitting(true);
     try {
       if (mode === "employee") {
         await onboardEmployee({
@@ -59,6 +62,8 @@ export function Onboarding() {
       }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Anlegen fehlgeschlagen.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -167,8 +172,8 @@ export function Onboarding() {
               <p className="rounded-md bg-secondary-50 px-3 py-2 text-sm text-secondary-800">{message}</p>
             )}
             {error && <p className="text-sm text-red-600">{error}</p>}
-            <Button type="submit" className="w-full">
-              Anlegen
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? "Wird angelegt..." : "Anlegen"}
             </Button>
           </form>
         ) : (
@@ -198,8 +203,8 @@ export function Onboarding() {
               <p className="rounded-md bg-secondary-50 px-3 py-2 text-sm text-secondary-800">{message}</p>
             )}
             {error && <p className="text-sm text-red-600">{error}</p>}
-            <Button type="submit" className="w-full">
-              Anlegen
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? "Wird angelegt..." : "Anlegen"}
             </Button>
           </form>
         )}
