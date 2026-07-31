@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import path from "path";
 import { InventorySession, User } from "@prisma/client";
+import { PDF_PAGE_BOTTOM, ensureRowSpace } from "./pdfTable";
 
 const LOGO_PATH = path.join(__dirname, "..", "..", "assets", "logo-full.png");
 const BRAND_PURPLE = "#76689a";
@@ -39,8 +40,8 @@ function productLabel(row: InventoryPdfRow): string {
 }
 
 const COLS = { product: 50, category: 220, previous: 300, sold: 345, expected: 390, counted: 440, diff: 490 };
-const PAGE_BOTTOM = 780;
 
+/** Draws the column header bar and leaves the doc ready to write body rows right after it. */
 function drawTableHeader(doc: PDFKit.PDFDocument, y: number): number {
   doc.rect(50, y, 495, 20).fill(BRAND_MINT);
   doc
@@ -54,6 +55,7 @@ function drawTableHeader(doc: PDFKit.PDFDocument, y: number): number {
     .text("Soll", COLS.expected, y + 6)
     .text("Gezählt", COLS.counted, y + 6)
     .text("Diff.", COLS.diff, y + 6);
+  doc.font("Helvetica").fillColor("#334155");
   return y + 20;
 }
 
@@ -90,17 +92,10 @@ export function generateInventorySessionPdf(session: SessionWithCreator, rows: I
       )
       .text(`Erfasst von: ${staffLabel(session.createdByUser)}`);
 
-    let y = 205;
-    y = drawTableHeader(doc, y);
-    doc.font("Helvetica").fillColor("#334155");
+    let y = drawTableHeader(doc, 205);
 
     for (const row of rows) {
-      if (y > PAGE_BOTTOM) {
-        doc.addPage();
-        y = 50;
-        y = drawTableHeader(doc, y);
-        doc.font("Helvetica").fillColor("#334155");
-      }
+      y = ensureRowSpace(doc, y, drawTableHeader);
 
       const rowY = y + 6;
       doc
@@ -132,7 +127,7 @@ export function generateInventorySessionPdf(session: SessionWithCreator, rows: I
       .text(
         "Rot markierte Differenzen zeigen, dass weniger Ware physisch vorhanden war als nach Vorbestand und Verkäufen erwartet.",
         50,
-        Math.min(y + 20, PAGE_BOTTOM + 40),
+        Math.min(y + 20, PDF_PAGE_BOTTOM + 40),
         { width: 495 }
       );
 

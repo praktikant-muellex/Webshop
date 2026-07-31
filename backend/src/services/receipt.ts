@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import path from "path";
 import { Order, OrderItem, Product, User } from "@prisma/client";
+import { PDF_PAGE_BOTTOM, ensureRowSpace } from "./pdfTable";
 
 const LOGO_PATH = path.join(__dirname, "..", "..", "assets", "logo-full.png");
 const BRAND_PURPLE = "#76689a";
@@ -29,7 +30,6 @@ function productLabel(product: Product): string {
 }
 
 const COL = { product: 50, size: 300, qty: 370, price: 420, sum: 490 };
-const PAGE_BOTTOM = 780;
 
 /** Draws the column header bar and leaves the doc ready to write body rows right after it. */
 function drawItemTableHeader(doc: PDFKit.PDFDocument, y: number): number {
@@ -79,10 +79,7 @@ export function generateReceiptPdf(order: FullOrder): Promise<Buffer> {
 
     let total = 0;
     for (const item of order.items) {
-      if (y > PAGE_BOTTOM) {
-        doc.addPage();
-        y = drawItemTableHeader(doc, 50);
-      }
+      y = ensureRowSpace(doc, y, drawItemTableHeader);
 
       const lineTotal = item.unitPriceEur * item.quantity;
       total += lineTotal;
@@ -103,7 +100,7 @@ export function generateReceiptPdf(order: FullOrder): Promise<Buffer> {
     // that would run off the page, start a fresh page for them rather than
     // letting them silently render past the page bottom (unlike text drawn
     // within the page, pdfkit does not warn or auto-paginate for this).
-    if (y + 60 > PAGE_BOTTOM) {
+    if (y + 60 > PDF_PAGE_BOTTOM) {
       doc.addPage();
       y = 50;
     }
