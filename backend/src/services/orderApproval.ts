@@ -56,25 +56,28 @@ export async function approveOrder(orderId: string, adminUserId: string) {
 
     const order = await tx.order.findUniqueOrThrow({
       where: { id: orderId },
-      include: { items: true, user: true },
+      include: { items: true },
     });
+
+    // Locks this employee's user row for the rest of the transaction *before*
+    // reading anything about them. This closes two races at once: two
+    // different orders for the same employee racing on the same balance
+    // (the original reason for this lock), and — just as importantly — a
+    // resignation committing between an unlocked read of employmentStatus
+    // and this lock, which would let the check below pass on stale data.
+    // Locking first and reading after means both checks always see a row
+    // that can no longer change out from under this transaction.
+    await tx.$queryRaw`SELECT id FROM users WHERE id = ${order.userId} FOR UPDATE`;
+    const user = await tx.user.findUniqueOrThrow({ where: { id: order.userId } });
 
     // A pending order can outlive the employee who placed it — approving it
     // after they've resigned would deduct budget and hand out gear (or at
     // least mark it ready to hand out) to someone no longer employed.
     // Rejecting a resigned employee's stale pending order is still fine
     // (no budget/goods effect), so this check only applies here.
-    if (order.user.employmentStatus !== EmploymentStatus.active) {
+    if (user.employmentStatus !== EmploymentStatus.active) {
       throw new EmployeeResignedError();
     }
-
-    // Locks this employee's user row for the rest of the transaction. Without
-    // it, approving two *different* pending orders for the same employee at
-    // nearly the same time could each read the same pre-deduction balance,
-    // both pass the check below, and both commit — overspending the budget.
-    // The updateMany above only guards against re-approving the *same*
-    // order, not two different orders racing on the same employee's balance.
-    await tx.$queryRaw`SELECT id FROM users WHERE id = ${order.userId} FOR UPDATE`;
 
     const totalEur = order.items.reduce((sum, item) => sum + item.unitPriceEur * item.quantity, 0);
 

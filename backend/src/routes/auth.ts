@@ -30,6 +30,25 @@ const loginLimiter = rateLimit({
   message: { error: "Zu viele Anmeldeversuche. Bitte in 15 Minuten erneut versuchen." },
 });
 
+/**
+ * Employee accounts have no password — a fixed per-IP limit alone leaves a
+ * gap: employeeNumber is a short, unformatted string (plain 4-digit numbers
+ * in practice), so someone who already knows a coworker's name could spread
+ * guesses across several source IPs to dodge `loginLimiter` entirely and
+ * still only need to search a small number space for one specific account.
+ * This limiter closes that gap by keying on the *employeeNumber being
+ * guessed* instead of the caller's IP, so the same account can't be brute-
+ * forced quickly regardless of how many IPs the attempts come from.
+ */
+const employeeAccountLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => String(req.body?.employeeNumber ?? "").trim().toLowerCase() || "unknown",
+  message: { error: "Zu viele Anmeldeversuche für diese Personalnummer. Bitte in 15 Minuten erneut versuchen." },
+});
+
 /** Admin/supervisor login — unchanged, email + password. */
 authRouter.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body ?? {};
@@ -64,7 +83,7 @@ authRouter.post("/login", loginLimiter, async (req, res) => {
  * mostly a UX/typo-catching measure: employeeNumber alone already
  * identifies the account uniquely.
  */
-authRouter.post("/employee-login", loginLimiter, async (req, res) => {
+authRouter.post("/employee-login", loginLimiter, employeeAccountLimiter, async (req, res) => {
   const { firstName, lastName, employeeNumber } = req.body ?? {};
   if (!firstName || !lastName || !employeeNumber) {
     return res.status(400).json({ error: "Vorname, Nachname und Personalnummer erforderlich." });
