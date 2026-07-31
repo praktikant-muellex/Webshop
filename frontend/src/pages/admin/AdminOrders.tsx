@@ -28,6 +28,7 @@ export function AdminOrders() {
   const [rejectTarget, setRejectTarget] = useState<Order | null>(null);
   const [rejecting, setRejecting] = useState(false);
   const [rejectError, setRejectError] = useState<string | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
 
   const fetcher = useCallback(() => fetchAllOrders({ status: status || undefined }), [status]);
   const {
@@ -39,12 +40,16 @@ export function AdminOrders() {
   } = useLoadableList(fetcher, "Bestellungen konnten nicht geladen werden.");
 
   const handleApprove = async (id: string) => {
+    if (approvingId) return; // already in flight — ignore a second click/tap
     setError(null);
+    setApprovingId(id);
     try {
       await approveOrder(id);
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Freigabe fehlgeschlagen.");
+    } finally {
+      setApprovingId(null);
     }
   };
 
@@ -136,12 +141,18 @@ export function AdminOrders() {
                       </Link>
                       {o.status === "pending" && (
                         <>
-                          <Button variant="secondary" className="px-2.5 py-1" onClick={() => handleApprove(o.id)}>
-                            Freigeben
+                          <Button
+                            variant="secondary"
+                            className="px-2.5 py-1"
+                            onClick={() => handleApprove(o.id)}
+                            disabled={approvingId === o.id}
+                          >
+                            {approvingId === o.id ? "Wird freigegeben..." : "Freigeben"}
                           </Button>
                           <Button
                             variant="danger"
                             className="px-2.5 py-1"
+                            disabled={approvingId === o.id}
                             onClick={() => {
                               setRejectError(null);
                               setRejectTarget(o);

@@ -86,7 +86,9 @@ export function OrderDetail() {
             <tr>
               <th className="px-4 py-2.5 text-left font-bold text-white">Produkt</th>
               <th className="px-4 py-2.5 text-left font-bold text-white">Größe</th>
+              <th className="px-4 py-2.5 text-right font-bold text-white">Menge</th>
               <th className="px-4 py-2.5 text-right font-bold text-white">Preis</th>
+              <th className="px-4 py-2.5 text-right font-bold text-white">Summe</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -106,7 +108,9 @@ export function OrderDetail() {
                   </div>
                 </td>
                 <td className="px-4 py-2.5 text-slate-500">{i.sizeLabel ?? "-"}</td>
+                <td className="px-4 py-2.5 text-right text-slate-700">{i.quantity}</td>
                 <td className="px-4 py-2.5 text-right text-slate-700">{i.unitPriceEur} €</td>
+                <td className="px-4 py-2.5 text-right text-slate-700">{i.unitPriceEur * i.quantity} €</td>
               </tr>
             ))}
           </tbody>

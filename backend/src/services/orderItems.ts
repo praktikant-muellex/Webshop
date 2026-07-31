@@ -33,7 +33,7 @@ export async function validateAndPriceItems(items: unknown): Promise<PricedOrder
   }
   const typedItems = items as OrderItemInput[];
   for (const item of typedItems) {
-    if (typeof item.productId !== "string" || !item.productId) {
+    if (typeof item !== "object" || item === null || typeof item.productId !== "string" || !item.productId) {
       throw new InvalidOrderItemsError("Jede Position braucht eine productId.");
     }
     if (
@@ -61,10 +61,12 @@ export async function validateAndPriceItems(items: unknown): Promise<PricedOrder
       if (!validSize) {
         throw new InvalidOrderItemsError(`Ungültige Größe für Produkt "${product.name}".`);
       }
+    } else if (item.sizeLabel) {
+      throw new InvalidOrderItemsError(`Produkt "${product.name}" hat keine Größenauswahl.`);
     }
     return {
       productId: product.id,
-      sizeLabel: item.sizeLabel ?? null,
+      sizeLabel: product.sizes.length > 0 ? item.sizeLabel ?? null : null,
       unitPriceEur: product.priceEur,
       quantity: item.quantity ?? 1,
     };

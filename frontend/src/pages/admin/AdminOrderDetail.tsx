@@ -33,6 +33,8 @@ export function AdminOrderDetail() {
 
   useEffect(() => {
     let cancelled = false;
+    setOrder(null);
+    setError(null);
     fetchAllOrders()
       .then((all) => {
         if (cancelled) return;
@@ -102,6 +104,13 @@ export function AdminOrderDetail() {
     if (!id) return;
     if (draft.length === 0) {
       setSaveError("Eine Bestellung braucht mindestens eine Position.");
+      return;
+    }
+    const invalidQuantity = draft.some(
+      (line) => !Number.isInteger(line.quantity) || line.quantity < 1 || line.quantity > 20
+    );
+    if (invalidQuantity) {
+      setSaveError("Menge muss eine ganze Zahl zwischen 1 und 20 sein.");
       return;
     }
     setSaveError(null);
@@ -257,7 +266,9 @@ export function AdminOrderDetail() {
                 <tr>
                   <th className="px-4 py-2.5 text-left font-bold text-white">Produkt</th>
                   <th className="px-4 py-2.5 text-left font-bold text-white">Größe</th>
+                  <th className="px-4 py-2.5 text-right font-bold text-white">Menge</th>
                   <th className="px-4 py-2.5 text-right font-bold text-white">Preis</th>
+                  <th className="px-4 py-2.5 text-right font-bold text-white">Summe</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -277,7 +288,9 @@ export function AdminOrderDetail() {
                       </div>
                     </td>
                     <td className="px-4 py-2.5 text-slate-500">{i.sizeLabel ?? "-"}</td>
+                    <td className="px-4 py-2.5 text-right text-slate-700">{i.quantity}</td>
                     <td className="px-4 py-2.5 text-right text-slate-700">{i.unitPriceEur} €</td>
+                    <td className="px-4 py-2.5 text-right text-slate-700">{i.unitPriceEur * i.quantity} €</td>
                   </tr>
                 ))}
               </tbody>

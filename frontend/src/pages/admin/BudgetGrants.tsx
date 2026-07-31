@@ -10,6 +10,7 @@ import { employeeLabel } from "../../lib/employeeLabel";
 
 export function BudgetGrants() {
   const [message, setMessage] = useState<string | null>(null);
+  const [running, setRunning] = useState(false);
 
   const fetcher = useCallback(() => fetchGrantStatus(), []);
   const {
@@ -21,14 +22,18 @@ export function BudgetGrants() {
   } = useLoadableList(fetcher, "Status konnte nicht geladen werden.");
 
   const handleRun = async () => {
+    if (running) return; // already in flight — ignore a second click/tap
     setError(null);
     setMessage(null);
+    setRunning(true);
     try {
       const result = await runAnnualGrant();
       setMessage(`${result.grantedCount} neue Ledger-Einträge angelegt.`);
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Ausführung fehlgeschlagen.");
+    } finally {
+      setRunning(false);
     }
   };
 
@@ -43,8 +48,8 @@ export function BudgetGrants() {
         Folgejahres.
       </p>
 
-      <Button className="mt-4" onClick={handleRun}>
-        Jetzt ausführen
+      <Button className="mt-4" onClick={handleRun} disabled={running}>
+        {running ? "Wird ausgeführt..." : "Jetzt ausführen"}
       </Button>
 
       {message && (

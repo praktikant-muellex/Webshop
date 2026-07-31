@@ -25,6 +25,8 @@ export function EmployeeDetail() {
   const [resignationDate, setResignationDate] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [submittingAdjustment, setSubmittingAdjustment] = useState(false);
+  const [submittingResignation, setSubmittingResignation] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,9 +55,10 @@ export function EmployeeDetail() {
 
   const submitAdjustment = async (e: FormEvent) => {
     e.preventDefault();
-    if (!id) return;
+    if (!id || submittingAdjustment) return; // already in flight — ignore a second click/tap
     setError(null);
     setMessage(null);
+    setSubmittingAdjustment(true);
     try {
       await createAdjustment(id, Number(amount), note);
       setAmount("");
@@ -64,20 +67,25 @@ export function EmployeeDetail() {
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Anpassung fehlgeschlagen.");
+    } finally {
+      setSubmittingAdjustment(false);
     }
   };
 
   const submitResignation = async (e: FormEvent) => {
     e.preventDefault();
-    if (!id || !resignationDate) return;
+    if (!id || !resignationDate || submittingResignation) return; // already in flight — ignore a second click/tap
     setError(null);
     setMessage(null);
+    setSubmittingResignation(true);
     try {
       await updateEmployee(id, { employmentStatus: "resigned", resignationDate });
       setMessage("Austritt erfasst, betroffene Bestellungen der letzten 3 Monate wurden markiert.");
       fetchEmployee(id).then(setEmployee);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Aktion fehlgeschlagen.");
+    } finally {
+      setSubmittingResignation(false);
     }
   };
 
@@ -129,7 +137,9 @@ export function EmployeeDetail() {
                 onChange={(e) => setNote(e.target.value)}
                 required
               />
-              <Button type="submit">Speichern</Button>
+              <Button type="submit" disabled={submittingAdjustment}>
+                {submittingAdjustment ? "Wird gespeichert..." : "Speichern"}
+              </Button>
             </form>
           </Card>
 
@@ -152,8 +162,8 @@ export function EmployeeDetail() {
                   onChange={(e) => setResignationDate(e.target.value)}
                   required
                 />
-                <Button type="submit" variant="danger">
-                  Als gekündigt markieren
+                <Button type="submit" variant="danger" disabled={submittingResignation}>
+                  {submittingResignation ? "Wird gespeichert..." : "Als gekündigt markieren"}
                 </Button>
               </form>
             )}
