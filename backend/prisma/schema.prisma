@@ -149,6 +149,8 @@ model Order {
   items         OrderItem[]
   ledgerEntries BudgetLedgerEntry[]
 
+  @@index([userId])
+  @@index([status])
   @@map("orders")
 }
 
@@ -184,6 +186,7 @@ model BudgetLedgerEntry {
   // Prisma's schema DSL can't express a WHERE-filtered unique index, so they
   // aren't declared here — don't `prisma db push` this model, it would try
   // to drop them. Always go through migrate deploy.
+  @@index([userId])
   @@map("budget_ledger_entries")
 }
 

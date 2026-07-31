@@ -6,6 +6,7 @@ import { requireRole } from "../middleware/auth";
 import { isForeignKeyViolation } from "../services/prismaErrors";
 import {
   getBalanceEur,
+  getBalancesEur,
   getLedger,
   runAnnualGrantJob,
   getGrantStatusForCurrentCycle,
@@ -94,21 +95,20 @@ adminRouter.get("/employees", staffOnly, async (req, res) => {
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
   });
 
-  const withBalances = await Promise.all(
-    users.map(async (u) => ({
-      id: u.id,
-      firstName: u.firstName,
-      lastName: u.lastName,
-      nickname: u.nickname,
-      employeeNumber: u.employeeNumber,
-      employeeGroup: u.employeeGroup,
-      hireDate: u.hireDate,
-      employmentStatus: u.employmentStatus,
-      resignationDate: u.resignationDate,
-      hidden: u.hidden,
-      balanceEur: await getBalanceEur(u.id),
-    }))
-  );
+  const balances = await getBalancesEur(users.map((u) => u.id));
+  const withBalances = users.map((u) => ({
+    id: u.id,
+    firstName: u.firstName,
+    lastName: u.lastName,
+    nickname: u.nickname,
+    employeeNumber: u.employeeNumber,
+    employeeGroup: u.employeeGroup,
+    hireDate: u.hireDate,
+    employmentStatus: u.employmentStatus,
+    resignationDate: u.resignationDate,
+    hidden: u.hidden,
+    balanceEur: balances.get(u.id) ?? 0,
+  }));
 
   res.json(withBalances);
 });

@@ -22,6 +22,24 @@ export async function getBalanceEur(userId: string): Promise<number> {
   return result._sum.amountEur ?? 0;
 }
 
+/**
+ * Same balance as getBalanceEur, but for many users in one grouped query
+ * instead of one aggregate per user — used by the employee list, which
+ * would otherwise fire N balance queries for N employees.
+ */
+export async function getBalancesEur(userIds: string[]): Promise<Map<string, number>> {
+  const sums = await prisma.budgetLedgerEntry.groupBy({
+    by: ["userId"],
+    where: { userId: { in: userIds } },
+    _sum: { amountEur: true },
+  });
+  const balances = new Map(userIds.map((id) => [id, 0]));
+  for (const sum of sums) {
+    balances.set(sum.userId, sum._sum.amountEur ?? 0);
+  }
+  return balances;
+}
+
 export class NegativeBalanceError extends Error {
   constructor(public readonly balanceEur: number, public readonly amountEur: number) {
     super(
