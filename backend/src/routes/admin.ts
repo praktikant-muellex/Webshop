@@ -16,12 +16,14 @@ import {
   approveOrder,
   rejectOrder,
   updateOrderStatus,
+  updateOrderItems,
   flagOrdersForReclaim,
   InsufficientBalanceError,
   OrderNotPendingError,
   InvalidStatusTransitionError,
   EmployeeResignedError,
 } from "../services/orderApproval";
+import { validateAndPriceItems, InvalidOrderItemsError } from "../services/orderItems";
 import { generateReceiptPdf } from "../services/receipt";
 import { sendReceiptEmail } from "../services/mailer";
 import {
@@ -451,6 +453,23 @@ adminRouter.patch("/orders/:id/status", staffOnly, async (req, res) => {
     res.json(order);
   } catch (err) {
     if (err instanceof InvalidStatusTransitionError) return res.status(409).json({ error: err.message });
+    throw err;
+  }
+});
+
+/**
+ * Corrects a pending order's items (wrong color/size/quantity picked by the
+ * employee) before it gets approved. See updateOrderItems for why this is
+ * restricted to 'pending' orders.
+ */
+adminRouter.patch("/orders/:id/items", staffOnly, async (req, res) => {
+  try {
+    const items = await validateAndPriceItems(req.body?.items);
+    const order = await updateOrderItems(req.params.id, items);
+    res.json(order);
+  } catch (err) {
+    if (err instanceof InvalidOrderItemsError) return res.status(400).json({ error: err.message });
+    if (err instanceof OrderNotPendingError) return res.status(409).json({ error: err.message });
     throw err;
   }
 });

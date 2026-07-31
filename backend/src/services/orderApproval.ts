@@ -1,6 +1,7 @@
 import { EmploymentStatus, LedgerEntryType, OrderStatus } from "@prisma/client";
 import { prisma } from "../db/prisma";
 import { addMonthsClamped } from "./dateMath";
+import { PricedOrderItem } from "./orderItems";
 
 export class InsufficientBalanceError extends Error {
   constructor(public readonly balanceEur: number, public readonly totalEur: number) {
@@ -149,6 +150,43 @@ export async function updateOrderStatus(orderId: string, status: "ready_for_pick
   return prisma.order.findUniqueOrThrow({
     where: { id: orderId },
     include: { items: { include: { product: true } } },
+  });
+}
+
+/**
+ * Replaces a pending order's line items wholesale (product/color, size,
+ * quantity) — the admin-side "I made a mistake, let me fix it" escape
+ * hatch. Deliberately restricted to 'pending': once approved, a budget
+ * deduction has already been booked for the *original* total, and editing
+ * the items afterwards would silently desync that ledger entry from what
+ * the order now actually contains. Rejecting and having the employee
+ * resubmit is the correct fix past that point.
+ *
+ * Same conditional-updateMany claim as approveOrder/rejectOrder/
+ * updateOrderStatus: re-affirming status='pending' as a no-op write still
+ * takes Postgres's row lock for the rest of the transaction, so a concurrent
+ * approve can't slip in between the check and the item replacement below.
+ */
+export async function updateOrderItems(orderId: string, items: PricedOrderItem[]) {
+  return prisma.$transaction(async (tx) => {
+    const claim = await tx.order.updateMany({
+      where: { id: orderId, status: OrderStatus.pending },
+      data: { status: OrderStatus.pending },
+    });
+
+    if (claim.count === 0) {
+      const existing = await tx.order.findUnique({ where: { id: orderId } });
+      if (!existing) throw new Error("Bestellung nicht gefunden.");
+      throw new OrderNotPendingError();
+    }
+
+    await tx.orderItem.deleteMany({ where: { orderId } });
+    await tx.orderItem.createMany({ data: items.map((item) => ({ orderId, ...item })) });
+
+    return tx.order.findUniqueOrThrow({
+      where: { id: orderId },
+      include: { items: { include: { product: true } } },
+    });
   });
 }
 

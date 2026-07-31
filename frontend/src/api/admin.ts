@@ -97,6 +97,19 @@ export function updateOrderStatus(id: string, status: "ready_for_pickup" | "issu
   });
 }
 
+export interface OrderItemEditInput {
+  productId: string;
+  sizeLabel?: string;
+  quantity?: number;
+}
+
+export function updateOrderItems(id: string, items: OrderItemEditInput[]) {
+  return apiFetch<Order>(`/admin/orders/${id}/items`, {
+    method: "PATCH",
+    body: JSON.stringify({ items }),
+  });
+}
+
 export function runAnnualGrant() {
   return apiFetch<{ grantedCount: number }>("/admin/budget/run-annual-grant", { method: "POST" });
 }

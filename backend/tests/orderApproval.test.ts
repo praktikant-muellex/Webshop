@@ -7,6 +7,7 @@ import {
   approveOrder,
   rejectOrder,
   updateOrderStatus,
+  updateOrderItems,
   flagOrdersForReclaim,
   InsufficientBalanceError,
   OrderNotPendingError,
@@ -101,6 +102,31 @@ describe("updateOrderStatus", () => {
     const order = await createOrder(employee.id, product.id, { status: "pending" });
 
     await expect(updateOrderStatus(order.id, "issued")).rejects.toThrow(InvalidStatusTransitionError);
+  });
+});
+
+describe("updateOrderItems", () => {
+  it("replaces a pending order's items", async () => {
+    const { employee, product } = await setup(0);
+    const otherProduct = await createProduct({ name: "Anderes Produkt", priceEur: 35 });
+    const order = await createOrder(employee.id, product.id, { unitPriceEur: 20, quantity: 1 });
+
+    const updated = await updateOrderItems(order.id, [
+      { productId: otherProduct.id, sizeLabel: null, unitPriceEur: 35, quantity: 2 },
+    ]);
+
+    expect(updated.items).toHaveLength(1);
+    expect(updated.items[0].productId).toBe(otherProduct.id);
+    expect(updated.items[0].quantity).toBe(2);
+  });
+
+  it("refuses to edit items on an order that is no longer pending", async () => {
+    const { employee, product } = await setup(0);
+    const order = await createOrder(employee.id, product.id, { status: "approved" });
+
+    await expect(
+      updateOrderItems(order.id, [{ productId: product.id, sizeLabel: null, unitPriceEur: 20, quantity: 1 }])
+    ).rejects.toThrow(OrderNotPendingError);
   });
 });
 
