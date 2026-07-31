@@ -31,6 +31,7 @@ function productLabel(product: Product): string {
 const COL = { product: 50, size: 300, qty: 370, price: 420, sum: 490 };
 const PAGE_BOTTOM = 780;
 
+/** Draws the column header bar and leaves the doc ready to write body rows right after it. */
 function drawItemTableHeader(doc: PDFKit.PDFDocument, y: number): number {
   doc.rect(50, y, 495, 22).fill(BRAND_MINT);
   doc
@@ -42,6 +43,7 @@ function drawItemTableHeader(doc: PDFKit.PDFDocument, y: number): number {
     .text("Menge", COL.qty, y + 6)
     .text("Preis", COL.price, y + 6)
     .text("Summe", COL.sum, y + 6);
+  doc.font("Helvetica").fillColor("#334155");
   return y + 22;
 }
 
@@ -74,14 +76,12 @@ export function generateReceiptPdf(order: FullOrder): Promise<Buffer> {
       .text(`Mitarbeiter: ${employeeLabel(order.user)}`);
 
     let y = drawItemTableHeader(doc, 240);
-    doc.font("Helvetica").fillColor("#334155");
 
     let total = 0;
     for (const item of order.items) {
       if (y > PAGE_BOTTOM) {
         doc.addPage();
         y = drawItemTableHeader(doc, 50);
-        doc.font("Helvetica").fillColor("#334155");
       }
 
       const lineTotal = item.unitPriceEur * item.quantity;

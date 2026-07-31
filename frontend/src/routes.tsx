@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { ComponentType, lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { RequireAuth, RequireRole } from "./context/RouteGuards";
 import { useAuth } from "./context/AuthContext";
@@ -7,33 +7,26 @@ import { AdminLayout } from "./components/AdminLayout";
 import { LoadingScreen } from "./components/ui/LoadingScreen";
 import { Login } from "./pages/Login";
 
-const Catalog = lazy(() => import("./pages/employee/Catalog").then((m) => ({ default: m.Catalog })));
-const Grundausstattung = lazy(() =>
-  import("./pages/employee/Grundausstattung").then((m) => ({ default: m.Grundausstattung })),
-);
-const Cart = lazy(() => import("./pages/employee/Cart").then((m) => ({ default: m.Cart })));
-const Orders = lazy(() => import("./pages/employee/Orders").then((m) => ({ default: m.Orders })));
-const OrderDetail = lazy(() =>
-  import("./pages/employee/OrderDetail").then((m) => ({ default: m.OrderDetail })),
-);
-const Budget = lazy(() => import("./pages/employee/Budget").then((m) => ({ default: m.Budget })));
+/** Wraps a named (non-default) export as a lazy-loaded route component. */
+function lazyPage<M extends Record<string, ComponentType>, K extends keyof M>(loader: () => Promise<M>, name: K) {
+  return lazy(() => loader().then((m) => ({ default: m[name] })));
+}
 
-const Employees = lazy(() => import("./pages/admin/Employees").then((m) => ({ default: m.Employees })));
-const EmployeeDetail = lazy(() =>
-  import("./pages/admin/EmployeeDetail").then((m) => ({ default: m.EmployeeDetail })),
-);
-const AdminOrders = lazy(() => import("./pages/admin/AdminOrders").then((m) => ({ default: m.AdminOrders })));
-const AdminOrderDetail = lazy(() =>
-  import("./pages/admin/AdminOrderDetail").then((m) => ({ default: m.AdminOrderDetail })),
-);
-const Onboarding = lazy(() => import("./pages/admin/Onboarding").then((m) => ({ default: m.Onboarding })));
-const BudgetGrants = lazy(() =>
-  import("./pages/admin/BudgetGrants").then((m) => ({ default: m.BudgetGrants })),
-);
-const Inventory = lazy(() => import("./pages/admin/Inventory").then((m) => ({ default: m.Inventory })));
-const ManageProducts = lazy(() =>
-  import("./pages/admin/ManageProducts").then((m) => ({ default: m.ManageProducts })),
-);
+const Catalog = lazyPage(() => import("./pages/employee/Catalog"), "Catalog");
+const Grundausstattung = lazyPage(() => import("./pages/employee/Grundausstattung"), "Grundausstattung");
+const Cart = lazyPage(() => import("./pages/employee/Cart"), "Cart");
+const Orders = lazyPage(() => import("./pages/employee/Orders"), "Orders");
+const OrderDetail = lazyPage(() => import("./pages/employee/OrderDetail"), "OrderDetail");
+const Budget = lazyPage(() => import("./pages/employee/Budget"), "Budget");
+
+const Employees = lazyPage(() => import("./pages/admin/Employees"), "Employees");
+const EmployeeDetail = lazyPage(() => import("./pages/admin/EmployeeDetail"), "EmployeeDetail");
+const AdminOrders = lazyPage(() => import("./pages/admin/AdminOrders"), "AdminOrders");
+const AdminOrderDetail = lazyPage(() => import("./pages/admin/AdminOrderDetail"), "AdminOrderDetail");
+const Onboarding = lazyPage(() => import("./pages/admin/Onboarding"), "Onboarding");
+const BudgetGrants = lazyPage(() => import("./pages/admin/BudgetGrants"), "BudgetGrants");
+const Inventory = lazyPage(() => import("./pages/admin/Inventory"), "Inventory");
+const ManageProducts = lazyPage(() => import("./pages/admin/ManageProducts"), "ManageProducts");
 
 function RoleBasedHome() {
   const { user } = useAuth();

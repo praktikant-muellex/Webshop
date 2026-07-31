@@ -56,7 +56,8 @@ export async function validateAndPriceItems(items: unknown): Promise<PricedOrder
     if (!product) {
       throw new InvalidOrderItemsError(`Produkt ${item.productId} nicht gefunden.`);
     }
-    if (product.sizes.length > 0) {
+    const hasSizes = product.sizes.length > 0;
+    if (hasSizes) {
       const validSize = product.sizes.some((s) => s.sizeLabel === item.sizeLabel);
       if (!validSize) {
         throw new InvalidOrderItemsError(`Ungültige Größe für Produkt "${product.name}".`);
@@ -66,7 +67,9 @@ export async function validateAndPriceItems(items: unknown): Promise<PricedOrder
     }
     return {
       productId: product.id,
-      sizeLabel: product.sizes.length > 0 ? item.sizeLabel ?? null : null,
+      // The check above already guarantees item.sizeLabel matches one of
+      // product.sizes whenever hasSizes, so it's never null/undefined here.
+      sizeLabel: hasSizes ? item.sizeLabel! : null,
       unitPriceEur: product.priceEur,
       quantity: item.quantity ?? 1,
     };

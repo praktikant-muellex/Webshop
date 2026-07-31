@@ -5,6 +5,7 @@ import { BudgetSummary, EmployeeListItem } from "../../api/types";
 import { LedgerTable } from "../../components/LedgerTable";
 import { ApiError } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
+import { useAsyncAction } from "../../hooks/useAsyncAction";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { BackButton } from "../../components/ui/BackButton";
@@ -25,8 +26,6 @@ export function EmployeeDetail() {
   const [resignationDate, setResignationDate] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [submittingAdjustment, setSubmittingAdjustment] = useState(false);
-  const [submittingResignation, setSubmittingResignation] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,12 +52,10 @@ export function EmployeeDetail() {
     fetchEmployee(id).then(setEmployee);
   };
 
-  const submitAdjustment = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!id || submittingAdjustment) return; // already in flight — ignore a second click/tap
+  const [submittingAdjustment, runAdjustment] = useAsyncAction(async () => {
+    if (!id) return;
     setError(null);
     setMessage(null);
-    setSubmittingAdjustment(true);
     try {
       await createAdjustment(id, Number(amount), note);
       setAmount("");
@@ -67,26 +64,30 @@ export function EmployeeDetail() {
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Anpassung fehlgeschlagen.");
-    } finally {
-      setSubmittingAdjustment(false);
     }
+  });
+
+  const submitAdjustment = (e: FormEvent) => {
+    e.preventDefault();
+    runAdjustment();
   };
 
-  const submitResignation = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!id || !resignationDate || submittingResignation) return; // already in flight — ignore a second click/tap
+  const [submittingResignation, runResignation] = useAsyncAction(async () => {
+    if (!id || !resignationDate) return;
     setError(null);
     setMessage(null);
-    setSubmittingResignation(true);
     try {
       await updateEmployee(id, { employmentStatus: "resigned", resignationDate });
       setMessage("Austritt erfasst, betroffene Bestellungen der letzten 3 Monate wurden markiert.");
       fetchEmployee(id).then(setEmployee);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Aktion fehlgeschlagen.");
-    } finally {
-      setSubmittingResignation(false);
     }
+  });
+
+  const submitResignation = (e: FormEvent) => {
+    e.preventDefault();
+    runResignation();
   };
 
   if (!summary || !employee) {

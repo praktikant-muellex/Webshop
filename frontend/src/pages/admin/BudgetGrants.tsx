@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { fetchGrantStatus, runAnnualGrant } from "../../api/admin";
 import { ApiError } from "../../api/client";
 import { useLoadableList } from "../../hooks/useLoadableList";
+import { useAsyncAction } from "../../hooks/useAsyncAction";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { PageHeading } from "../../components/ui/PageHeading";
@@ -10,7 +11,6 @@ import { employeeLabel } from "../../lib/employeeLabel";
 
 export function BudgetGrants() {
   const [message, setMessage] = useState<string | null>(null);
-  const [running, setRunning] = useState(false);
 
   const fetcher = useCallback(() => fetchGrantStatus(), []);
   const {
@@ -21,21 +21,17 @@ export function BudgetGrants() {
     reload: load,
   } = useLoadableList(fetcher, "Status konnte nicht geladen werden.");
 
-  const handleRun = async () => {
-    if (running) return; // already in flight — ignore a second click/tap
+  const [running, handleRun] = useAsyncAction(async () => {
     setError(null);
     setMessage(null);
-    setRunning(true);
     try {
       const result = await runAnnualGrant();
       setMessage(`${result.grantedCount} neue Ledger-Einträge angelegt.`);
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Ausführung fehlgeschlagen.");
-    } finally {
-      setRunning(false);
     }
-  };
+  });
 
   return (
     <div>

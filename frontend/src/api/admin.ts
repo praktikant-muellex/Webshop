@@ -1,5 +1,6 @@
 import { apiFetch, ApiError, API_URL } from "./client";
 import { BudgetSummary, EmployeeListItem, InventoryOverview, InventorySessionListItem, Order, OrderStatus } from "./types";
+import { OrderItemInput } from "./orders";
 
 // approveOrder/rejectOrder/updateOrderStatus intentionally return this
 // narrower shape, not the full `Order` type: the backend's approveOrder
@@ -97,13 +98,7 @@ export function updateOrderStatus(id: string, status: "ready_for_pickup" | "issu
   });
 }
 
-export interface OrderItemEditInput {
-  productId: string;
-  sizeLabel?: string;
-  quantity?: number;
-}
-
-export function updateOrderItems(id: string, items: OrderItemEditInput[]) {
+export function updateOrderItems(id: string, items: OrderItemInput[]) {
   return apiFetch<Order>(`/admin/orders/${id}/items`, {
     method: "PATCH",
     body: JSON.stringify({ items }),

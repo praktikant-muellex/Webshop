@@ -60,15 +60,15 @@ export async function approveOrder(orderId: string, adminUserId: string) {
     });
 
     // Locks this employee's user row for the rest of the transaction *before*
-    // reading anything about them. This closes two races at once: two
-    // different orders for the same employee racing on the same balance
-    // (the original reason for this lock), and — just as importantly — a
-    // resignation committing between an unlocked read of employmentStatus
-    // and this lock, which would let the check below pass on stale data.
-    // Locking first and reading after means both checks always see a row
-    // that can no longer change out from under this transaction.
-    await tx.$queryRaw`SELECT id FROM users WHERE id = ${order.userId} FOR UPDATE`;
-    const user = await tx.user.findUniqueOrThrow({ where: { id: order.userId } });
+    // reading anything about them (the lock and the read happen in the same
+    // query, so there's no separate unlocked read to race against). This
+    // closes two races at once: two different orders for the same employee
+    // racing on the same balance (the original reason for this lock), and —
+    // just as importantly — a resignation committing right as this runs,
+    // which would let the employment check below pass on stale data.
+    const [user] = await tx.$queryRaw<{ id: string; employmentStatus: EmploymentStatus }[]>`
+      SELECT id, "employmentStatus" FROM users WHERE id = ${order.userId} FOR UPDATE
+    `;
 
     // A pending order can outlive the employee who placed it — approving it
     // after they've resigned would deduct budget and hand out gear (or at

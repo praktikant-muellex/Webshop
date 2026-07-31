@@ -73,9 +73,11 @@ export function AdminOrderDetail() {
     setSaveError(null);
     setDraft(order.items.map((i) => ({ productId: i.productId, sizeLabel: i.sizeLabel, quantity: i.quantity })));
     setEditing(true);
-    fetchAllProductsAdmin()
-      .then((all) => setProducts(all.filter((p) => p.active)))
-      .catch(() => setSaveError("Produktliste konnte nicht geladen werden."));
+    if (products.length === 0) {
+      fetchAllProductsAdmin()
+        .then((all) => setProducts(all.filter((p) => p.active)))
+        .catch(() => setSaveError("Produktliste konnte nicht geladen werden."));
+    }
   };
 
   const cancelEditing = () => {
